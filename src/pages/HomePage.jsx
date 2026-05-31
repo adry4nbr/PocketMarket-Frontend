@@ -14,6 +14,7 @@ export default function HomePage() {
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [condition, setCondition] = useState("All");
   const [selectedCard, setSelectedCard] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -42,7 +43,7 @@ export default function HomePage() {
     setFavorites((prev) =>
       prev.includes(card.id)
         ? prev.filter((id) => id !== card.id)
-        : [...prev, card.id]
+        : [...prev, card.id],
     );
   }
 
@@ -55,7 +56,8 @@ export default function HomePage() {
         </span>
         <h1 className="text-4xl font-bold mt-4 mb-2">Gotta collect 'em all</h1>
         <p className="text-blue-100 text-base max-w-md">
-          Discover, buy, and track the value of your favorite Pokémon TCG cards in real-time.
+          Discover, buy, and track the value of your favorite Pokémon TCG cards
+          in real-time.
         </p>
       </div>
 
@@ -66,6 +68,8 @@ export default function HomePage() {
           onSearchChange={setSearch}
           filter={filter}
           onFilterChange={setFilter}
+          condition={condition}
+          onConditionChange={setCondition}
         />
 
         {/* Grid */}

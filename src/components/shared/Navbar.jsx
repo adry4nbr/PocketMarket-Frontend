@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { Search, BarChart2, Heart, User, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -14,37 +14,37 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
       {/* Logo */}
-      <Link to="/" className="flex items-center gap-2">
+      <NavLink to="/" className="flex items-center gap-2">
         <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
           <div className="w-4 h-4 bg-white rounded-full" />
         </div>
         <span className="font-bold text-lg">PocketMarket</span>
-      </Link>
+      </NavLink>
 
       {/* Nav Links — só aparece quando logado */}
       {user && (
         <div className="flex items-center gap-6">
-          <Link
+          <NavLink
             to="/"
             className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
           >
             <Search size={16} />
             Marketplace
-          </Link>
-          <Link
+          </NavLink>
+          <NavLink
             to="/collection"
             className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
           >
             <BarChart2 size={16} />
             My Collection
-          </Link>
-          <Link
+          </NavLink>
+          <NavLink
             to="/favorites"
             className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
           >
             <Heart size={16} />
             Favorites
-          </Link>
+          </NavLink>
         </div>
       )}
 
@@ -64,18 +64,18 @@ export default function Navbar() {
         </div>
       ) : (
         <div className="flex items-center gap-3">
-          <Link
+          <NavLink
             to="/login"
-            className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+            className="text-sm font-medium px-4 py-2 rounded-full text-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
           >
-            Log in
-          </Link>
-          <Link
+            Login
+          </NavLink>
+          <NavLink
             to="/register"
-            className="bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-blue-700 transition-colors flex items-center gap-1"
+            className="bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-blue-800 transition-colors flex items-center gap-1"
           >
-            ✦ Sign up
-          </Link>
+            ✦ Cadastre-se
+          </NavLink>
         </div>
       )}
     </nav>
