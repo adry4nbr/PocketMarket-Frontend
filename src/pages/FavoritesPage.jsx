@@ -8,28 +8,30 @@ export default function FavoritesPage() {
   const collectionCardIds = mockCollection.map((c) => c.cardId);
 
   function handleUnfavorite(cardId) {
-    // TODO: chamar DELETE /api/v1/favorites/{cardId} quando a API estiver pronta
     setFavorites((prev) => prev.filter((f) => f.cardId !== cardId));
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-6 py-8 transition-colors duration-200">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Heart size={24} className="fill-red-500 text-red-500" />
           Favorites
         </h1>
-        <p className="text-gray-500 text-sm mt-1">Cards you are keeping an eye on.</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          Cards you are keeping an eye on.
+        </p>
       </div>
 
-      <hr className="mb-6 border-gray-200" />
+      <hr className="mb-6 border-gray-200 dark:border-gray-700" />
 
-      {/* Grid */}
       {favorites.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-gray-400 dark:text-gray-500">
           <p className="text-lg font-medium">No favorites yet.</p>
-          <p className="text-sm mt-1">Heart a card in the Marketplace to save it here!</p>
+          <p className="text-sm mt-1">
+            Heart a card in the Marketplace to save it here!
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-4 gap-4">
@@ -38,37 +40,42 @@ export default function FavoritesPage() {
             return (
               <div
                 key={item.favoriteId}
-                className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+                className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm"
               >
-                {/* Imagem */}
                 <div className="relative">
                   <img
                     src={item.imageUrl}
                     alt={item.cardName}
-                    className="w-full h-52 object-cover"
+                    className="w-full h-80 object-fill"
                     onError={(e) => {
-                      e.target.src = "https://placehold.co/300x200?text=No+Image";
+                      e.target.src =
+                        "https://placehold.co/300x200?text=No+Image";
                     }}
                   />
                   <button
                     onClick={() => handleUnfavorite(item.cardId)}
-                    className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow hover:scale-110 transition-transform"
+                    className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow hover:scale-110 transition-transform"
                   >
                     <Heart size={16} className="fill-red-500 text-red-500" />
                   </button>
                 </div>
 
-                {/* Info */}
                 <div className="p-4">
                   <div className="flex justify-between mb-3">
                     <div>
-                      <p className="font-bold text-gray-900">{item.cardName}</p>
-                      <p className="text-sm text-gray-500">{item.setName}</p>
+                      <p className="font-bold text-gray-900 dark:text-gray-100">
+                        {item.cardName}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {item.setName}
+                      </p>
                     </div>
-                    <p className="font-bold text-gray-900">${item.price.toFixed(2)}</p>
+                    <p className="font-bold text-gray-900 dark:text-gray-100">
+                      ${item.price.toFixed(2)}
+                    </p>
                   </div>
 
-                  <button className="w-full bg-gray-100 text-gray-600 text-sm font-medium py-2 rounded-xl">
+                  <button className="w-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm font-medium py-2 rounded-xl">
                     {inCollection ? "In Collection" : "+ Add to Collection"}
                   </button>
                 </div>

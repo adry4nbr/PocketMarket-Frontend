@@ -48,7 +48,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       {/* Hero Banner */}
       <div className="mx-6 mt-6 bg-blue-600 rounded-2xl p-10 text-white">
         <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
@@ -73,7 +73,7 @@ export default function HomePage() {
         />
 
         {/* Grid */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-12">
           {visible.map((card) => (
             <CardItem
               key={card.id}
@@ -91,7 +91,7 @@ export default function HomePage() {
           <div className="flex justify-center py-6">
             <button
               onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
-              className="bg-white border border-gray-200 text-gray-700 text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-50 transition-colors"
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               Load More Cards
             </button>

@@ -52,19 +52,21 @@ function FilterDropdown({ icon: Icon, label, options, value, onChange }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 hover:border-blue-400 transition-colors"
+        className="flex items-center gap-2 px-3 py-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 hover:border-blue-400 transition-colors"
       >
         <Icon size={14} className="text-blue-500" />
-        <span className="text-gray-400">{label}</span>
-        <span className="font-medium text-gray-700">{displayVal}</span>
+        <span className="text-gray-400 dark:text-gray-500">{label}</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300">
+          {displayVal}
+        </span>
         <ChevronDown
           size={13}
-          className={`text-gray-400 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+          className={`text-gray-400 dark:text-gray-500 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1.5 bg-white border border-gray-100 rounded-xl z-50 overflow-hidden min-w-max">
+        <div className="absolute right-0 mt-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl z-50 overflow-hidden min-w-max">
           {options.map((opt) => (
             <button
               key={opt.value}
@@ -72,7 +74,7 @@ function FilterDropdown({ icon: Icon, label, options, value, onChange }) {
                 onChange(opt.value);
                 setOpen(false);
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               {value === opt.value ? (
                 <Check size={13} className="text-blue-500 shrink-0" />
@@ -82,8 +84,8 @@ function FilterDropdown({ icon: Icon, label, options, value, onChange }) {
               <span
                 className={
                   value === opt.value
-                    ? "text-blue-600 font-medium"
-                    : "text-gray-700"
+                    ? "text-blue-600 dark:text-blue-400 font-medium"
+                    : "text-gray-700 dark:text-gray-300"
                 }
               >
                 {opt.label}
@@ -112,7 +114,7 @@ export default function SearchBar({
   onConditionChange,
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between gap-4">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center justify-between gap-4 transition-colors duration-200">
       <div className="flex items-center gap-2 text-blue-600 font-semibold">
         <Search size={18} />
         <span>Explore Cards</span>
@@ -129,7 +131,7 @@ export default function SearchBar({
             placeholder="Search by name..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-8 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 w-48"
+            className="pl-8 pr-4 py-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-400 w-48"
           />
         </div>
 
@@ -140,7 +142,6 @@ export default function SearchBar({
           value={filter}
           onChange={onFilterChange}
         />
-
         <FilterDropdown
           icon={Shield}
           label="Condition:"
