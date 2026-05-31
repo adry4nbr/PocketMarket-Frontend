@@ -24,7 +24,7 @@ export default function CardDetailModal({ card, onClose, onAddToCollection }) {
         </button>
 
         {/* Imagem */}
-        <div className="w-56 flex-shrink-0">
+        <div className="w-56 shrink-0">
           <img
             src={card.imageUrl}
             alt={card.name}
