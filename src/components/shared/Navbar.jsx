@@ -1,10 +1,20 @@
 import { useNavigate, NavLink } from "react-router-dom";
-import { Search, BarChart2, Heart, User, LogOut } from "lucide-react";
+import {
+  Search,
+  BarChart2,
+  Heart,
+  User,
+  LogOut,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   function handleLogout() {
     logout();
@@ -12,35 +22,35 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-      {/* Logo */}
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors duration-200">
       <NavLink to="/" className="flex items-center gap-2">
         <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
           <div className="w-4 h-4 bg-white rounded-full" />
         </div>
-        <span className="font-bold text-lg">PocketMarket</span>
+        <span className="font-bold text-lg text-gray-900 dark:text-gray-100">
+          PocketMarket
+        </span>
       </NavLink>
 
-      {/* Nav Links — só aparece quando logado */}
       {user && (
         <div className="flex items-center gap-6">
           <NavLink
             to="/"
-            className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             <Search size={16} />
             Marketplace
           </NavLink>
           <NavLink
             to="/collection"
-            className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             <BarChart2 size={16} />
             My Collection
           </NavLink>
           <NavLink
             to="/favorites"
-            className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             <Heart size={16} />
             Favorites
@@ -48,25 +58,31 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Auth */}
       {user ? (
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
+          <div className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
             <User size={16} />
             {user.name}
           </div>
           <button
             onClick={handleLogout}
-            className="text-gray-500 hover:text-red-500 transition-colors"
+            className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
           >
             <LogOut size={18} />
+          </button>
+          <button
+            onClick={toggleTheme}
+            aria-label="Alternar tema"
+            className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
       ) : (
         <div className="flex items-center gap-3">
           <NavLink
             to="/login"
-            className="text-sm font-medium px-4 py-2 rounded-full text-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
+            className="text-sm font-medium px-4 py-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-blue-600 hover:text-white transition-colors"
           >
             Login
           </NavLink>
@@ -76,6 +92,13 @@ export default function Navbar() {
           >
             ✦ Cadastre-se
           </NavLink>
+          <button
+            onClick={toggleTheme}
+            aria-label="Alternar tema"
+            className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
         </div>
       )}
     </nav>
