@@ -45,6 +45,12 @@ export default function Navbar() {
             <Heart size={16} />
             Favorites
           </Link>
+          <Link
+              to="/trades"
+              className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+          >
+             Trades
+          </Link>
         </div>
       )}
 
