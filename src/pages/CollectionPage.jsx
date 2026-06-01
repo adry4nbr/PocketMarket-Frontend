@@ -15,7 +15,7 @@ export default function CollectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-6 py-8 transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-3 sm:px-6 py-6 sm:py-8 transition-colors duration-200">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -28,11 +28,11 @@ export default function CollectionPage() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl px-6 py-3 text-right">
-          <p className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wide">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl px-2 py-2 text-center">
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase ">
             Total Value
           </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-sm sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
             ${totalValue.toFixed(2)}
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function CollectionPage() {
           <p className="text-sm mt-1">Add cards from the Marketplace!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {collection.map((item) => (
             <div
               key={item.collectionId}

@@ -15,11 +15,12 @@ export default function CardItem({
       className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
       onClick={() => onClick(card)}
     >
-      <div className="flex">
+      {/* Imagem */}
+      <div className="relative">
         <img
           src={card.imageUrl}
           alt={card.name}
-          className="w-full h-80 object-fill"
+          className="w-full h-70 sm:h-52 object-fill"
           onError={(e) => {
             e.target.src = "https://placehold.co/300x200?text=No+Image";
           }}
@@ -42,17 +43,18 @@ export default function CardItem({
         )}
       </div>
 
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <p className="font-bold text-gray-900 dark:text-gray-100">
+      {/* Info */}
+      <div className="p-3 sm:p-4">
+        <div className="flex items-start justify-between mb-3 gap-2">
+          <div className="min-w-0">
+            <p className="font-bold text-gray-900 dark:text-gray-100 truncate">
               {card.name}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
               {card.setName}
             </p>
           </div>
-          <p className="font-bold text-gray-900 dark:text-gray-100">
+          <p className="font-bold text-gray-900 dark:text-gray-100 shrink-0">
             ${card.price.toFixed(2)}
           </p>
         </div>

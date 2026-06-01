@@ -52,16 +52,18 @@ function FilterDropdown({ icon: Icon, label, options, value, onChange }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 px-3 py-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 hover:border-blue-400 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 hover:border-blue-400 transition-colors w-full"
       >
-        <Icon size={14} className="text-blue-500" />
-        <span className="text-gray-400 dark:text-gray-500">{label}</span>
-        <span className="font-medium text-gray-700 dark:text-gray-300">
+        <Icon size={14} className="text-blue-500 shrink-0" />
+        <span className="text-gray-400 dark:text-gray-500 hidden sm:inline">
+          {label}
+        </span>
+        <span className="font-medium text-gray-700 dark:text-gray-300 truncate">
           {displayVal}
         </span>
         <ChevronDown
           size={13}
-          className={`text-gray-400 dark:text-gray-500 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+          className={`text-gray-400 dark:text-gray-500 transition-transform duration-150 ml-auto shrink-0 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -114,14 +116,15 @@ export default function SearchBar({
   onConditionChange,
 }) {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center justify-between gap-4 transition-colors duration-200">
-      <div className="flex items-center gap-2 text-blue-600 font-semibold">
-        <Search size={18} />
-        <span>Explore Cards</span>
-      </div>
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 px-4 py-3 flex flex-col gap-3 transition-colors duration-200">
+      {/* Linha 1: título + input + filtros (desktop) */}
+      <div className="flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-2 text-blue-600 font-semibold shrink-0">
+          <Search size={18} />
+          <span>Explore Cards</span>
+        </div>
 
-      <div className="flex items-center gap-3 ml-auto">
-        <div className="relative">
+        <div className="relative flex-1">
           <Search
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -131,24 +134,49 @@ export default function SearchBar({
             placeholder="Search by name..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-8 pr-4 py-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-400 w-48"
+            className="w-full pl-8 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-400"
           />
         </div>
 
-        <FilterDropdown
-          icon={SlidersHorizontal}
-          label="Rarity:"
-          options={rarities}
-          value={filter}
-          onChange={onFilterChange}
-        />
-        <FilterDropdown
-          icon={Shield}
-          label="Condition:"
-          options={conditions}
-          value={condition}
-          onChange={onConditionChange}
-        />
+        {/* Filtros na mesma linha — só no desktop */}
+        <div className="hidden sm:flex gap-2 shrink-0">
+          <FilterDropdown
+            icon={SlidersHorizontal}
+            label="Rarity:"
+            options={rarities}
+            value={filter}
+            onChange={onFilterChange}
+          />
+          <FilterDropdown
+            icon={Shield}
+            label="Condition:"
+            options={conditions}
+            value={condition}
+            onChange={onConditionChange}
+          />
+        </div>
+      </div>
+
+      {/* Linha 2: filtros abaixo — só no mobile */}
+      <div className="flex gap-1 sm:hidden">
+        <div className="flex-1">
+          <FilterDropdown
+            icon={SlidersHorizontal}
+            label="Rarity:"
+            options={rarities}
+            value={filter}
+            onChange={onFilterChange}
+          />
+        </div>
+        <div className="flex-1">
+          <FilterDropdown
+            icon={Shield}
+            label="Condition:"
+            options={conditions}
+            value={condition}
+            onChange={onConditionChange}
+          />
+        </div>
       </div>
     </div>
   );
