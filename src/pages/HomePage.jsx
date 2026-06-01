@@ -50,19 +50,21 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       {/* Hero Banner */}
-      <div className="mx-6 mt-6 bg-blue-600 rounded-2xl p-10 text-white">
+      <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 bg-blue-600 rounded-2xl p-6 sm:p-10 text-white">
         <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
           Official Marketplace
         </span>
-        <h1 className="text-4xl font-bold mt-4 mb-2">Gotta collect 'em all</h1>
-        <p className="text-blue-100 text-base max-w-md">
+        <h1 className="text-xl sm:text-4xl font-bold mt-4 mb-2">
+          Gotta collect 'em all
+        </h1>
+        <p className="text-blue-100 text-sm sm:text-base max-w-md">
           Discover, buy, and track the value of your favorite Pokémon TCG cards
           in real-time.
         </p>
       </div>
 
       {/* Search + Cards */}
-      <div className="mx-6 mt-6 space-y-4">
+      <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 space-y-4">
         <SearchBar
           search={search}
           onSearchChange={setSearch}
@@ -72,8 +74,8 @@ export default function HomePage() {
           onConditionChange={setCondition}
         />
 
-        {/* Grid */}
-        <div className="grid grid-cols-4 gap-12">
+        {/* Grid responsivo */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
           {visible.map((card) => (
             <CardItem
               key={card.id}
@@ -99,7 +101,6 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Modal */}
       <CardDetailModal
         card={selectedCard}
         onClose={() => setSelectedCard(null)}

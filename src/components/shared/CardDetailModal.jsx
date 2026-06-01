@@ -8,33 +8,36 @@ export default function CardDetailModal({ card, onClose, onAddToCollection }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full p-6 flex gap-6 relative border border-gray-100 dark:border-gray-700 transition-colors duration-200"
+        className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl max-w-2xl w-full p-5 sm:p-6 flex flex-col sm:flex-row gap-5 sm:gap-6 relative border-t sm:border border-gray-100 dark:border-gray-700 max-h-[90vh] overflow-y-auto transition-colors duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+          aria-label="Fechar"
         >
           <X size={20} />
         </button>
 
-        <div className="w-56 shrink-0">
+        {/* Imagem */}
+        <div className="w-full sm:w-56 shrink-0 flex justify-center">
           <img
             src={card.imageUrl}
             alt={card.name}
-            className="w-full rounded-xl"
+            className="w-40 sm:w-full rounded-xl"
             onError={(e) => {
               e.target.src = "https://placehold.co/300x400?text=No+Image";
             }}
           />
         </div>
 
+        {/* Detalhes */}
         <div className="flex-1">
-          <div className="flex gap-2 mb-3">
+          <div className="flex gap-2 mb-3 flex-wrap">
             <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
               {card.rarity?.replace("_", " ")}
             </span>
@@ -43,7 +46,7 @@ export default function CardDetailModal({ card, onClose, onAddToCollection }) {
             </span>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
             {card.name}
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
@@ -72,7 +75,7 @@ export default function CardDetailModal({ card, onClose, onAddToCollection }) {
 
           <hr className="my-4 border-gray-200 dark:border-gray-700" />
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               ${card.price.toFixed(2)}
             </p>
