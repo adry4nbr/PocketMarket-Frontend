@@ -4,19 +4,17 @@ import { useAuth } from "../../context/AuthContext";
 import TradeModal from "./TradeModal";
 import AuctionTimer from "./AuctionTimer";
 
-export default function CardDetailModal({
-                                            card,
-                                            onClose,
-                                            onAddToCollection,
-                                        }) {
+export default function CardDetailModal({ card, onClose, onAddToCollection }) {
     const { user } = useAuth();
-
+    
+    // Estados combinados das duas branches
     const [tradeModalOpen, setTradeModalOpen] = useState(false);
     const [bidValue, setBidValue] = useState("");
     const [bidMessage, setBidMessage] = useState("");
 
     if (!card) return null;
 
+    // Função de lances do seu amigo preservada
     function handleBid() {
         const bid = Number(bidValue);
 
@@ -37,57 +35,56 @@ export default function CardDetailModal({
     return (
         <>
             <div
-                className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
                 onClick={onClose}
             >
                 <div
-                    className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full p-6 flex gap-6 relative"
+                    className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl max-w-2xl w-full p-5 sm:p-6 flex flex-col sm:flex-row gap-5 sm:gap-6 relative border-t sm:border border-gray-100 dark:border-gray-700 max-h-[90vh] overflow-y-auto transition-colors duration-200"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Fechar */}
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                        aria-label="Fechar"
                     >
                         <X size={20} />
                     </button>
 
-                    {/* Imagem */}
-                    <div className="w-56 flex-shrink-0">
+                    {/* Imagem (Seu layout responsivo mantido) */}
+                    <div className="w-full sm:w-56 shrink-0 flex justify-center">
                         <img
                             src={card.imageUrl}
                             alt={card.name}
-                            className="w-full rounded-xl"
+                            className="w-40 sm:w-full rounded-xl"
                             onError={(e) => {
-                                e.target.src =
-                                    "https://placehold.co/300x400?text=No+Image";
+                                e.target.src = "https://placehold.co/300x400?text=No+Image";
                             }}
                         />
                     </div>
 
                     {/* Detalhes */}
                     <div className="flex-1">
-                        {/* Badges */}
+                        
+                        {/* Badges combinadas */}
                         <div className="flex gap-2 mb-3 flex-wrap">
-              <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
-                {card.rarity?.replace("_", " ")}
-              </span>
-
-                            <span className="border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-3 py-1 rounded-full">
-                {card.condition}
-              </span>
-
+                            <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                                {card.rarity?.replace("_", " ")}
+                            </span>
+                            <span className="border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-xs font-medium px-3 py-1 rounded-full">
+                                {card.condition}
+                            </span>
                             {card.isAuction && (
                                 <span className="bg-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-                   Auction Active
-                </span>
+                                    Auction Active
+                                </span>
                             )}
                         </div>
 
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                             {card.name}
                         </h2>
-
+                        
                         <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
                             {card.setName} • {card.rarity?.replace("_", " ")}
                         </p>
@@ -95,10 +92,9 @@ export default function CardDetailModal({
                         {/* Descrição */}
                         {card.description && (
                             <div className="mb-4">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+                                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">
                                     Description
                                 </p>
-
                                 <p className="text-sm text-gray-700 dark:text-gray-300">
                                     {card.description}
                                 </p>
@@ -107,33 +103,30 @@ export default function CardDetailModal({
 
                         {/* Stock */}
                         <div className="mb-4">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+                            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">
                                 Stock
                             </p>
-
                             <p className="text-sm text-gray-700 dark:text-gray-300">
                                 {card.stock} available
                             </p>
                         </div>
 
-                        {/* Auction Info */}
+                        {/* Informações do Leilão (Com dark mode aplicado) */}
                         {card.isAuction && (
                             <div className="mb-4 space-y-3">
                                 <div>
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+                                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">
                                         Current Bid
                                     </p>
-
                                     <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
                                         ${(card.currentBid ?? 0).toFixed(2)}
                                     </p>
                                 </div>
 
                                 <div>
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+                                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">
                                         Seller
                                     </p>
-
                                     <p className="text-sm text-gray-700 dark:text-gray-300">
                                         {card.seller}
                                     </p>
@@ -141,10 +134,9 @@ export default function CardDetailModal({
 
                                 {card.endsAt && (
                                     <div>
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
+                                        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">
                                             Auction Ends
                                         </p>
-
                                         <div className="text-sm font-medium text-orange-600 dark:text-orange-400">
                                             <AuctionTimer endsAt={card.endsAt} />
                                         </div>
@@ -153,13 +145,12 @@ export default function CardDetailModal({
                             </div>
                         )}
 
-                        {/* Place Bid */}
+                        {/* Campo para fazer lances (Adaptado para dark mode) */}
                         {card.isAuction && user && (
                             <div className="mb-4">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+                                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
                                     Place Bid
                                 </p>
-
                                 <div className="flex gap-2">
                                     <input
                                         type="number"
@@ -168,19 +159,17 @@ export default function CardDetailModal({
                                         value={bidValue}
                                         onChange={(e) => setBidValue(e.target.value)}
                                         placeholder="Enter bid"
-                                        className="flex-1 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                        className="flex-1 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none focus:border-orange-500"
                                     />
-
                                     <button
                                         onClick={handleBid}
-                                        className="bg-orange-600 text-white px-4 py-2 rounded-xl hover:bg-orange-700 transition-colors"
+                                        className="bg-orange-600 text-white px-4 py-2 rounded-xl hover:bg-orange-700 transition-colors shrink-0"
                                     >
                                         Place Bid
                                     </button>
                                 </div>
-
                                 {bidMessage && (
-                                    <p className="text-sm mt-2">
+                                    <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">
                                         {bidMessage}
                                     </p>
                                 )}
@@ -189,14 +178,14 @@ export default function CardDetailModal({
 
                         <hr className="my-4 border-gray-200 dark:border-gray-700" />
 
-                        {/* Preço e ações */}
-                        <div className="flex items-center justify-between">
+                        {/* Footer de ações combinado */}
+                        <div className="flex items-center justify-between gap-4">
                             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 ${card.price.toFixed(2)}
                             </p>
 
                             {user ? (
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                                     <button
                                         onClick={() => {
                                             onAddToCollection(card);
@@ -211,7 +200,7 @@ export default function CardDetailModal({
                                         onClick={() => setTradeModalOpen(true)}
                                         className="bg-green-600 text-white text-sm font-medium px-5 py-2 rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2"
                                     >
-                                        <Repeat size={18} />
+                                        <Repeat size={16} />
                                         Trade Offer
                                     </button>
                                 </div>

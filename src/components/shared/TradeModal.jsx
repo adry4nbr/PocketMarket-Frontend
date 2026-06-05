@@ -1,57 +1,58 @@
-export default function TradeModal({
-                                       isOpen,
-                                       onClose,
-                                       card
-                                   }) {
-    if (!isOpen) return null;
+import { mockCollection } from "../../mock/cards";
 
-    const myCards = [
-        { id: 1, name: "Pikachu" },
-        { id: 2, name: "Mewtwo" },
-        { id: 3, name: "Gengar" }
-    ];
+export default function TradeModal({ isOpen, onClose, card }) {
+  if (!isOpen) return null;
 
-    return (
-        <div
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
-            onClick={onClose}
-        >
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white p-6 rounded-xl w-[500px] max-w-[90vw]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-xl font-bold mb-4">Propor troca por {card.name}</h2>
+
+        <p className="text-gray-500 mb-4">Escolha uma carta da sua coleção:</p>
+
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+          {mockCollection.map((myCard) => (
             <div
-                className="bg-white p-6 rounded-xl w-96"
-                onClick={(e) => e.stopPropagation()}
+              key={myCard.collectionId}
+              className="border rounded-lg p-3 flex items-center gap-3"
             >
-                <h2 className="text-xl font-bold mb-4">
-                    Propor troca por {card.name}
-                </h2>
+              <img
+                src={myCard.imageUrl}
+                alt={myCard.cardName}
+                className="w-16 rounded"
+              />
 
-                <p className="text-gray-500 mb-4">
-                    Escolha uma carta da sua coleção:
-                </p>
+              <div className="flex-1">
+                <h3 className="font-semibold">{myCard.cardName}</h3>
+                <p className="text-sm text-gray-500">{myCard.setName}</p>
+              </div>
 
-                <div className="space-y-2">
-                    {myCards.map((myCard) => (
-                        <button
-                            key={myCard.id}
-                            className="w-full border p-3 rounded-lg hover:bg-gray-100"
-                            onClick={() => {
-                                alert(
-                                    `Proposta enviada: ${myCard.name} por ${card.name}`
-                                );
-                                onClose();
-                            }}
-                        >
-                            {myCard.name}
-                        </button>
-                    ))}
-                </div>
-
-                <button
-                    onClick={onClose}
-                    className="mt-4 w-full bg-gray-200 py-2 rounded-lg"
-                >
-                    Cancelar
-                </button>
+              <button
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                onClick={() => {
+                  alert(`Proposta enviada: ${myCard.cardName} → ${card.name}`);
+                  onClose();
+                }}
+              >
+                Oferecer
+              </button>
             </div>
+          ))}
         </div>
-    );
+
+        <button
+          onClick={onClose}
+          className="mt-4 w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
 }

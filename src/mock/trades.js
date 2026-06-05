@@ -3,13 +3,13 @@ export const sentTrades = [
         id: 1,
         offeredCard: "Charizard",
         requestedCard: "Mewtwo",
-        status: "Pending",
+        status: "Pendente",
     },
     {
         id: 2,
         offeredCard: "Charizard",
         requestedCard: "Gengar",
-        status: "Accepted",
+        status: "Aceito",
     },
 ];
 
@@ -18,6 +18,6 @@ export const receivedTrades = [
         id: 3,
         offeredCard: "Blastoise",
         requestedCard: "Charizard",
-        status: "Rejected",
+        status: "Recusado",
     },
 ];
