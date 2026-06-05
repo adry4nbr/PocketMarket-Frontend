@@ -9,7 +9,7 @@ export default function TradeModal({ isOpen, onClose, card }) {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-xl w-[500px] max-w-[90vw]"
+        className="bg-white p-6 rounded-xl w-125 max-w-[90vw]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-bold mb-4">Propor troca por {card.name}</h2>
