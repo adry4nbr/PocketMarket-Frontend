@@ -77,7 +77,6 @@ export default function TradesPage() {
               key={trade.id}
               className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4 sm:p-5 transition-colors duration-200"
             >
-              {/* Ajustado para flex-col no mobile e flex-row no desktop */}
               <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-3 sm:gap-0">
                 <div>
                   <p className="font-bold text-gray-900 dark:text-gray-100 flex items-center flex-wrap gap-1">
@@ -95,7 +94,7 @@ export default function TradesPage() {
 
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-xs font-medium w-fit ${getStatusStyle(
-                    trade.status,
+                    trade.status
                   )}`}
                 >
                   {trade.status}

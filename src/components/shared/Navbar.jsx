@@ -10,7 +10,7 @@ import {
   Moon,
   Menu,
   X,
-  Repeat, // <-- Adicionado o ícone para o link de Trades
+  Repeat,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";

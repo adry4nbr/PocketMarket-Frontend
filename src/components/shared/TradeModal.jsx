@@ -9,14 +9,14 @@ export default function TradeModal({ isOpen, onClose, card }) {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-xl w-125"
+        className="bg-white p-6 rounded-xl w-[500px] max-w-[90vw]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-2">Propor troca por {card.name}</h2>
+        <h2 className="text-xl font-bold mb-4">Propor troca por {card.name}</h2>
 
         <p className="text-gray-500 mb-4">Escolha uma carta da sua coleção:</p>
 
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
           {mockCollection.map((myCard) => (
             <div
               key={myCard.collectionId}
@@ -30,12 +30,11 @@ export default function TradeModal({ isOpen, onClose, card }) {
 
               <div className="flex-1">
                 <h3 className="font-semibold">{myCard.cardName}</h3>
-
                 <p className="text-sm text-gray-500">{myCard.setName}</p>
               </div>
 
               <button
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                 onClick={() => {
                   alert(`Proposta enviada: ${myCard.cardName} → ${card.name}`);
                   onClose();
@@ -49,7 +48,7 @@ export default function TradeModal({ isOpen, onClose, card }) {
 
         <button
           onClick={onClose}
-          className="mt-4 w-full bg-gray-200 py-2 rounded-lg"
+          className="mt-4 w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition-colors"
         >
           Cancelar
         </button>
