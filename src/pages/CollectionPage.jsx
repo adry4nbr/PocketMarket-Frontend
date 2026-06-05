@@ -7,75 +7,83 @@ export default function CollectionPage() {
 
   const totalValue = collection.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
 
   function handleRemove(cardId) {
-    // TODO: chamar DELETE /api/v1/collection/{cardId} quando a API estiver pronta
     setCollection((prev) => prev.filter((item) => item.cardId !== cardId));
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-3 sm:px-6 py-6 sm:py-8 transition-colors duration-200">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <BarChart2 size={24} className="text-blue-600" />
             My Collection
           </h1>
-          <p className="text-gray-500 text-sm mt-1">Manage your cards and track their value.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+            Manage your cards and track their value.
+          </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl px-6 py-3 text-right">
-          <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Total Value</p>
-          <p className="text-2xl font-bold text-gray-900">${totalValue.toFixed(2)}</p>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl px-2 py-2 text-center">
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase ">
+            Total Value
+          </p>
+          <p className="text-sm sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+            ${totalValue.toFixed(2)}
+          </p>
         </div>
       </div>
 
-      <hr className="mb-6 border-gray-200" />
+      <hr className="mb-6 border-gray-200 dark:border-gray-700" />
 
-      {/* Grid */}
       {collection.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-gray-400 dark:text-gray-500">
           <p className="text-lg font-medium">Your collection is empty.</p>
           <p className="text-sm mt-1">Add cards from the Marketplace!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {collection.map((item) => (
             <div
               key={item.collectionId}
-              className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+              className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm"
             >
-              {/* Imagem */}
               <div className="relative">
                 <img
                   src={item.imageUrl}
                   alt={item.cardName}
-                  className="w-full h-52 object-cover"
+                  className="w-full h-80 object-fill"
                   onError={(e) => {
                     e.target.src = "https://placehold.co/300x200?text=No+Image";
                   }}
                 />
-                <button className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow">
+                <button className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow">
                   <Heart size={16} className="text-gray-400" />
                 </button>
               </div>
 
-              {/* Info */}
               <div className="p-4">
                 <div className="flex justify-between mb-3">
                   <div>
-                    <p className="font-bold text-gray-900">{item.cardName}</p>
-                    <p className="text-sm text-gray-500">{item.setName}</p>
+                    <p className="font-bold text-gray-900 dark:text-gray-100">
+                      {item.cardName}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {item.setName}
+                    </p>
                   </div>
-                  <p className="font-bold text-gray-900">${item.price.toFixed(2)}</p>
+                  <p className="font-bold text-gray-900 dark:text-gray-100">
+                    ${item.price.toFixed(2)}
+                  </p>
                 </div>
 
                 <button
                   onClick={() => handleRemove(item.cardId)}
-                  className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-500 text-sm font-medium py-2 rounded-xl hover:bg-red-100 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-red-950 text-red-500 dark:text-red-400 text-sm font-medium py-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
                 >
                   <Trash2 size={14} />
                   Remove

@@ -14,6 +14,7 @@ export default function HomePage() {
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [condition, setCondition] = useState("All");
   const [selectedCard, setSelectedCard] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -42,34 +43,39 @@ export default function HomePage() {
     setFavorites((prev) =>
       prev.includes(card.id)
         ? prev.filter((id) => id !== card.id)
-        : [...prev, card.id]
+        : [...prev, card.id],
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       {/* Hero Banner */}
-      <div className="mx-6 mt-6 bg-blue-600 rounded-2xl p-10 text-white">
+      <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 bg-blue-600 rounded-2xl p-6 sm:p-10 text-white">
         <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
           Official Marketplace
         </span>
-        <h1 className="text-4xl font-bold mt-4 mb-2">Gotta collect 'em all</h1>
-        <p className="text-blue-100 text-base max-w-md">
-          Discover, buy, and track the value of your favorite Pokémon TCG cards in real-time.
+        <h1 className="text-xl sm:text-4xl font-bold mt-4 mb-2">
+          Gotta collect 'em all
+        </h1>
+        <p className="text-blue-100 text-sm sm:text-base max-w-md">
+          Discover, buy, and track the value of your favorite Pokémon TCG cards
+          in real-time.
         </p>
       </div>
 
       {/* Search + Cards */}
-      <div className="mx-6 mt-6 space-y-4">
+      <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 space-y-4">
         <SearchBar
           search={search}
           onSearchChange={setSearch}
           filter={filter}
           onFilterChange={setFilter}
+          condition={condition}
+          onConditionChange={setCondition}
         />
 
-        {/* Grid */}
-        <div className="grid grid-cols-4 gap-4">
+        {/* Grid responsivo */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
           {visible.map((card) => (
             <CardItem
               key={card.id}
@@ -87,7 +93,7 @@ export default function HomePage() {
           <div className="flex justify-center py-6">
             <button
               onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
-              className="bg-white border border-gray-200 text-gray-700 text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-50 transition-colors"
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               Load More Cards
             </button>
@@ -95,7 +101,6 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Modal */}
       <CardDetailModal
         card={selectedCard}
         onClose={() => setSelectedCard(null)}
