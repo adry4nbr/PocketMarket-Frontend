@@ -9,6 +9,11 @@ export const mockCards = [
     stock: 1,
     imageUrl: "https://images.pokemontcg.io/base1/4_hires.png",
     description: "Spits fire that is hot enough to melt boulders. Known to cause forest fires unintentionally.",
+
+    isAuction: true,
+    currentBid: 420,
+    seller: "Ash Ketchum",
+    endsAt: "2026-06-15T23:59:59"
   },
   {
     id: "1a2b3c4d-0002-0000-0000-000000000002",
@@ -42,6 +47,8 @@ export const mockCards = [
     stock: 10,
     imageUrl: "https://images.pokemontcg.io/base1/58_hires.png",
     description: "When several of these Pokémon gather, their electricity can build and cause lightning storms.",
+
+    isAuction: false
   },
   {
     id: "1a2b3c4d-0005-0000-0000-000000000005",
