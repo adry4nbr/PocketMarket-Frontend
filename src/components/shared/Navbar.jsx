@@ -10,6 +10,7 @@ import {
   Moon,
   Menu,
   X,
+  Repeat,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -66,6 +67,13 @@ export default function Navbar() {
             >
               <Heart size={16} />
               Favorites
+            </NavLink>
+            <NavLink
+                to="/trades"
+                className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              <Repeat size={16} />
+              Trades
             </NavLink>
           </div>
         )}
@@ -162,6 +170,14 @@ export default function Navbar() {
               >
                 <Heart size={16} />
                 Favorites
+              </NavLink>
+              <NavLink
+                  to="/trades"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-2 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                <Repeat size={16} />
+                Trades
               </NavLink>
               <button
                 onClick={handleLogout}
