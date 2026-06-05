@@ -1,5 +1,6 @@
 import { Heart } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import AuctionTimer from "./AuctionTimer";
 
 export default function CardItem({
   card,
@@ -25,6 +26,13 @@ export default function CardItem({
             e.target.src = "https://placehold.co/300x200?text=No+Image";
           }}
         />
+        {card.isAuction && (
+            <div className="absolute top-2 left-2">
+                <span className="bg-orange-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow">
+                  Auction Active
+                </span>
+            </div>
+        )}
         {user && (
           <button
             onClick={(e) => {
@@ -54,10 +62,30 @@ export default function CardItem({
               {card.setName}
             </p>
           </div>
-          <p className="font-bold text-gray-900 dark:text-gray-100 shrink-0">
-            ${card.price.toFixed(2)}
-          </p>
+          <div className="text-right shrink-0">
+            <p className="font-bold text-gray-900 dark:text-gray-100">
+              ${card.price.toFixed(2)}
+            </p>
+
+            {card.isAuction && (
+                <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                  Current Bid: ${(card.currentBid ?? 0).toFixed(2)}
+                </p>
+            )}
+          </div>
         </div>
+
+        {card.isAuction && (
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <span className="text-orange-600 dark:text-orange-400 font-medium">
+                Auction Ends
+              </span>
+
+              {card.endsAt && (
+                  <AuctionTimer endsAt={card.endsAt} />
+              )}
+            </div>
+        )}
 
         <button
           onClick={(e) => {
