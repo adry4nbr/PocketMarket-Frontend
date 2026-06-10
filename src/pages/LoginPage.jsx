@@ -4,21 +4,32 @@ import { Sparkles } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { loginRequest } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    if (email && password) {
-      login({ name: "Ash Ketchum", email }, "mock-jwt-token");
-      navigate("/");
-    } else {
+
+    if (!email || !password) {
       setError("Preencha email e senha.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await loginRequest(email, password);
+      navigate("/");
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      setError(msg || "Email ou senha inválidos.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -76,9 +87,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl hover:bg-blue-700 transition-colors"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Log In
+            {loading ? "Entrando..." : "Log In"}
           </button>
         </form>
 
