@@ -170,7 +170,7 @@ export default function TradesPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-gray-900 dark:text-gray-100">
-                    {purchase.amount} cr
+                    {purchase.amount}
                   </p>
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-xs font-medium w-fit mt-1 ${getStatusStyle(purchase.status)}`}

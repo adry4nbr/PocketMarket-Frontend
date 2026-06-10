@@ -34,16 +34,6 @@ export default function FavoritesPage() {
     }
   }
 
-  async function handleAddToCollection(cardId) {
-    try {
-      await api.post("/collection", { userCardId: cardId });
-      alert("Card adicionado à coleção!");
-    } catch (err) {
-      const msg = err.response?.data?.message;
-      alert(msg || "Erro ao adicionar à coleção.");
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-3 sm:px-6 py-6 sm:py-8 transition-colors duration-200">
       {/* Header */}
@@ -118,13 +108,6 @@ export default function FavoritesPage() {
                     ${Number(item.price).toFixed(2)}
                   </p>
                 </div>
-
-                <button
-                  onClick={() => handleAddToCollection(item.cardId)}
-                  className="w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-xl hover:bg-blue-700 transition-colors"
-                >
-                  + Add to Collection
-                </button>
               </div>
             </div>
           ))}

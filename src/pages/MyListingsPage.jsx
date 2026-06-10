@@ -170,7 +170,7 @@ export default function MyListingsPage() {
                   <div className="mb-3">
                     <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
                       Lance atual:{" "}
-                      {listing.currentBid ?? listing.startingBid ?? 0} cr
+                      {listing.currentBid ?? listing.startingBid ?? 0}
                     </p>
                     {listing.auctionEndsAt && (
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -180,7 +180,7 @@ export default function MyListingsPage() {
                   </div>
                 ) : (
                   <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">
-                    {listing.price ?? 0} cr
+                    {listing.price ?? 0}
                   </p>
                 )}
 

@@ -1,17 +1,6 @@
-import { Heart } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
 import AuctionTimer from "./AuctionTimer";
 
-export default function CardItem({
-  card,
-  onAddToCollection,
-  onToggleFavorite,
-  isFavorited,
-  onClick,
-  onBid,
-}) {
-  const { user } = useAuth();
-
+export default function CardItem({ card, onAddToCollection, onClick, onBid }) {
   return (
     <div
       className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
@@ -33,22 +22,6 @@ export default function CardItem({
               Auction Active
             </span>
           </div>
-        )}
-        {user && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(card);
-            }}
-            className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow hover:scale-110 transition-transform"
-          >
-            <Heart
-              size={16}
-              className={
-                isFavorited ? "fill-red-500 text-red-500" : "text-gray-400"
-              }
-            />
-          </button>
         )}
       </div>
 
