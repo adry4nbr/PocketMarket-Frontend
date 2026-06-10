@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tag, Gavel } from "lucide-react";
+import { Tag, Gavel, LayoutGrid } from "lucide-react";
 import CardItem from "../components/shared/CardItem";
 import CardDetailModal from "../components/shared/CardDetailModal";
 import SearchBar from "../components/shared/SearchBar";
@@ -10,6 +10,7 @@ import api from "../services/api";
 const PAGE_SIZE = 8;
 
 const TABS = [
+  { key: "ALL", label: "Todos", icon: LayoutGrid },
   { key: "SALE", label: "À Venda", icon: Tag },
   { key: "AUCTION", label: "Leilões", icon: Gavel },
 ];
@@ -40,7 +41,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("SALE");
+  const [activeTab, setActiveTab] = useState("ALL");
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -93,7 +94,10 @@ export default function HomePage() {
 
   // Filtra por aba + search + rarity + condition
   const filtered = listings.filter((card) => {
-    const matchTab = card.isAuction === (activeTab === "AUCTION");
+    const matchTab =
+      activeTab === "ALL" ||
+      (activeTab === "SALE" && !card.isAuction) ||
+      (activeTab === "AUCTION" && card.isAuction);
     const matchName = card.name.toLowerCase().includes(search.toLowerCase());
     const matchRarity = filter === "All" || card.rarity === filter;
     const matchCondition = condition === "All" || card.condition === condition;
@@ -212,6 +216,10 @@ export default function HomePage() {
                 onAddToCollection={handleBuy}
                 onToggleFavorite={handleToggleFavorite}
                 onClick={setSelectedCard}
+                onBid={(card) => {
+                  // por enquanto abre o CardDetailModal onde já tem o campo de lance
+                  setSelectedCard(card);
+                }}
               />
             ))}
           </div>

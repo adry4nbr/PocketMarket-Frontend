@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trash2, Megaphone } from "lucide-react";
+import { Trash2, Megaphone, Heart } from "lucide-react";
 import api from "../../services/api";
 import ListingModal from "../../components/shared/ListingModal";
 
@@ -7,24 +7,42 @@ export default function MyCollection() {
   const [collection, setCollection] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [listingCard, setListingCard] = useState(null); // abre o modal
+  const [listingCard, setListingCard] = useState(null);
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    async function fetchCollection() {
+    async function fetchData() {
       try {
         setLoading(true);
-        const { data } = await api.get("/user-cards/me", {
-          params: { page: 0, size: 50 },
-        });
-        setCollection(data.content ?? []);
+        const [cardsRes, favsRes] = await Promise.all([
+          api.get("/user-cards/me", { params: { page: 0, size: 50 } }),
+          api.get("/favorites"),
+        ]);
+        setCollection(cardsRes.data.content ?? []);
+        setFavorites(favsRes.data.map((f) => f.cardId));
       } catch {
         setError("Erro ao carregar a coleção.");
       } finally {
         setLoading(false);
       }
     }
-    fetchCollection();
+    fetchData();
   }, []);
+
+  async function handleToggleFavorite(cardId) {
+    const isFav = favorites.includes(cardId);
+    try {
+      if (isFav) {
+        await api.delete(`/favorites/${cardId}`);
+        setFavorites((prev) => prev.filter((id) => id !== cardId));
+      } else {
+        await api.post(`/favorites/${cardId}`);
+        setFavorites((prev) => [...prev, cardId]);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Erro ao atualizar favoritos.");
+    }
+  }
 
   async function handleRemove(userCardId) {
     try {
@@ -60,63 +78,81 @@ export default function MyCollection() {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {collection.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm"
-          >
-            <img
-              src={item.card?.imageLargeUrl ?? item.card?.imageSmallUrl}
-              alt={item.card?.name}
-              className="w-full h-80 object-fill"
-              onError={(e) => {
-                e.target.src = "https://placehold.co/300x200?text=No+Image";
-              }}
-            />
+        {collection.map((item) => {
+          const cardId = item.card?.id;
+          const isFav = favorites.includes(cardId);
 
-            <div className="p-4">
-              <div className="flex justify-between mb-3">
-                <div>
-                  <p className="font-bold text-gray-900 dark:text-gray-100">
-                    {item.card?.name ?? "Unknown Card"}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {item.card?.setName ?? "—"}
-                  </p>
-                </div>
-                <span className="text-xs font-bold px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 self-start">
-                  {item.condition}
-                </span>
+          return (
+            <div
+              key={item.id}
+              className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm"
+            >
+              <div className="relative">
+                <img
+                  src={item.card?.imageLargeUrl ?? item.card?.imageSmallUrl}
+                  alt={item.card?.name}
+                  className="w-full h-80 object-fill"
+                  onError={(e) => {
+                    e.target.src = "https://placehold.co/300x200?text=No+Image";
+                  }}
+                />
+                <button
+                  onClick={() => handleToggleFavorite(cardId)}
+                  className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow hover:scale-110 transition-transform"
+                >
+                  <Heart
+                    size={16}
+                    className={
+                      isFav ? "fill-red-500 text-red-500" : "text-gray-400"
+                    }
+                  />
+                </button>
               </div>
 
-              {/* só mostra "Anunciar" se a carta estiver disponível */}
-              {item.status === "AVAILABLE" && (
-                <button
-                  onClick={() => setListingCard(item)}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 text-sm font-medium py-2 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors mb-2"
-                >
-                  <Megaphone size={14} />
-                  Anunciar
-                </button>
-              )}
-
-              {/* badge se já estiver listada */}
-              {item.status === "LISTED" && (
-                <div className="w-full text-center text-xs font-medium text-orange-500 dark:text-orange-400 py-2 mb-2">
-                  Já anunciada
+              <div className="p-4">
+                <div className="flex justify-between mb-3">
+                  <div>
+                    <p className="font-bold text-gray-900 dark:text-gray-100">
+                      {item.card?.name ?? "Unknown Card"}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {item.card?.setName ?? "—"}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 self-start">
+                    {item.condition}
+                  </span>
                 </div>
-              )}
 
-              <button
-                onClick={() => handleRemove(item.id)}
-                className="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-red-950 text-red-500 dark:text-red-400 text-sm font-medium py-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
-              >
-                <Trash2 size={14} />
-                Remove
-              </button>
+                {item.status === "AVAILABLE" && (
+                  <button
+                    onClick={() => setListingCard(item)}
+                    className="w-full flex items-center justify-center gap-2 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 text-sm font-medium py-2 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors mb-2"
+                  >
+                    <Megaphone size={14} />
+                    Anunciar
+                  </button>
+                )}
+
+                {item.status === "LISTED" && (
+                  <div className="w-full text-center text-xs font-medium text-orange-500 dark:text-orange-400 py-2 mb-2">
+                    Já anunciada
+                  </div>
+                )}
+
+                {item.status !== "LISTED" && (
+                  <button
+                    onClick={() => handleRemove(item.id)}
+                    className="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-red-950 text-red-500 dark:text-red-400 text-sm font-medium py-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                    Remove
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {listingCard && (
@@ -124,7 +160,6 @@ export default function MyCollection() {
           userCard={listingCard}
           onClose={() => setListingCard(null)}
           onSuccess={() => {
-            // atualiza o status da carta localmente sem refetch
             setCollection((prev) =>
               prev.map((item) =>
                 item.id === listingCard.id

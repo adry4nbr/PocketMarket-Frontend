@@ -1,37 +1,37 @@
 import { useState, useEffect } from "react";
-import { Megaphone, Trash2 } from "lucide-react";
+import { Megaphone, Trash2, LayoutGrid, Tag, Gavel } from "lucide-react";
 import api from "../services/api";
+import AuctionTimer from "../components/shared/AuctionTimer";
+
+const TABS = [
+  { key: "ALL", label: "Todos", icon: LayoutGrid },
+  { key: "SALE", label: "Anúncios", icon: Tag },
+  { key: "AUCTION", label: "Leilões", icon: Gavel },
+];
 
 export default function MyListingsPage() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("ALL");
 
   useEffect(() => {
     async function fetchListings() {
       try {
         setLoading(true);
-        // busca todas as listings e filtra as do usuário logado pelo sellerId
-        // como não há endpoint "my-listings", usamos my-sales como referência
         const { data } = await api.get("/listings", {
           params: { page: 0, size: 100 },
         });
 
-        const myActive = (data.content ?? []).filter((l) => {
-          const cache = JSON.parse(
-            localStorage.getItem("listingCache") || "{}",
-          );
-          return l.listingStatus === "ACTIVE" && cache[l.id] !== undefined;
-        });
-
-        // enriquece com cache visual
         const cache = JSON.parse(localStorage.getItem("listingCache") || "{}");
-        const enriched = myActive.map((l) => ({
-          ...l,
-          ...(cache[l.id] ?? {}),
-        }));
 
-        setListings(enriched);
+        const myActive = (data.content ?? [])
+          .filter(
+            (l) => l.listingStatus === "ACTIVE" && cache[l.id] !== undefined,
+          )
+          .map((l) => ({ ...l, ...(cache[l.id] ?? {}) }));
+
+        setListings(myActive);
       } catch (err) {
         console.error(err);
         setError("Erro ao carregar seus anúncios.");
@@ -46,9 +46,7 @@ export default function MyListingsPage() {
     if (!confirm("Tem certeza que deseja cancelar este anúncio?")) return;
     try {
       await api.patch(`/listings/${listingId}/cancel`);
-      // remove da lista local
       setListings((prev) => prev.filter((l) => l.id !== listingId));
-      // remove do cache também
       const cache = JSON.parse(localStorage.getItem("listingCache") || "{}");
       delete cache[listingId];
       localStorage.setItem("listingCache", JSON.stringify(cache));
@@ -56,6 +54,13 @@ export default function MyListingsPage() {
       alert(err.response?.data?.message || "Erro ao cancelar anúncio.");
     }
   }
+
+  const filtered = listings.filter((l) => {
+    if (activeTab === "ALL") return true;
+    if (activeTab === "SALE") return l.listingType === "SALE";
+    if (activeTab === "AUCTION") return l.listingType === "AUCTION";
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-3 sm:px-6 py-6 sm:py-8 transition-colors duration-200">
@@ -76,12 +81,31 @@ export default function MyListingsPage() {
             Active
           </p>
           <p className="text-sm sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {listings.length}
+            {filtered.length}
           </p>
         </div>
       </div>
 
       <hr className="mb-6 border-gray-200 dark:border-gray-700" />
+
+      {/* Abas */}
+      <div className="flex gap-2 mb-6">
+        {TABS.map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors
+              ${
+                activeTab === key
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+              }`}
+          >
+            <Icon size={15} />
+            {label}
+          </button>
+        ))}
+      </div>
 
       {loading && (
         <div className="text-center py-20 text-gray-400 dark:text-gray-500">
@@ -95,7 +119,7 @@ export default function MyListingsPage() {
         </div>
       )}
 
-      {!loading && !error && listings.length === 0 && (
+      {!loading && !error && filtered.length === 0 && (
         <div className="text-center py-20 text-gray-400 dark:text-gray-500">
           <p className="text-lg font-medium">No active listings.</p>
           <p className="text-sm mt-1">
@@ -104,9 +128,9 @@ export default function MyListingsPage() {
         </div>
       )}
 
-      {!loading && !error && listings.length > 0 && (
+      {!loading && !error && filtered.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {listings.map((listing) => (
+          {filtered.map((listing) => (
             <div
               key={listing.id}
               className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm"
@@ -141,12 +165,24 @@ export default function MyListingsPage() {
                   {listing.setName ?? "—"} • {listing.condition ?? "—"}
                 </p>
 
-                {/* Preço */}
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">
-                  {listing.listingType === "AUCTION"
-                    ? `Lance atual: ${listing.currentBid ?? listing.startingBid ?? 0} cr`
-                    : `${listing.price ?? 0} cr`}
-                </p>
+                {/* Preço / Lance */}
+                {listing.listingType === "AUCTION" ? (
+                  <div className="mb-3">
+                    <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                      Lance atual:{" "}
+                      {listing.currentBid ?? listing.startingBid ?? 0} cr
+                    </p>
+                    {listing.auctionEndsAt && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <AuctionTimer endsAt={listing.auctionEndsAt} />
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">
+                    {listing.price ?? 0} cr
+                  </p>
+                )}
 
                 <button
                   onClick={() => handleCancel(listing.id)}

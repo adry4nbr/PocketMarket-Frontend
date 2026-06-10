@@ -8,6 +8,7 @@ export default function CardItem({
   onToggleFavorite,
   isFavorited,
   onClick,
+  onBid,
 }) {
   const { user } = useAuth();
 
@@ -27,11 +28,11 @@ export default function CardItem({
           }}
         />
         {card.isAuction && (
-            <div className="absolute top-2 left-2">
-                <span className="bg-orange-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow">
-                  Auction Active
-                </span>
-            </div>
+          <div className="absolute top-2 left-2">
+            <span className="bg-orange-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow">
+              Auction Active
+            </span>
+          </div>
         )}
         {user && (
           <button
@@ -68,34 +69,44 @@ export default function CardItem({
             </p>
 
             {card.isAuction && (
-                <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                  Current Bid: ${(card.currentBid ?? 0).toFixed(2)}
-                </p>
+              <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                Current Bid: ${(card.currentBid ?? 0).toFixed(2)}
+              </p>
             )}
           </div>
         </div>
 
         {card.isAuction && (
-            <div className="mb-3 flex items-center justify-between text-sm">
-              <span className="text-orange-600 dark:text-orange-400 font-medium">
-                Auction Ends
-              </span>
+          <div className="mb-3 flex items-center justify-between text-sm">
+            <span className="text-orange-600 dark:text-orange-400 font-medium">
+              Auction Ends
+            </span>
 
-              {card.endsAt && (
-                  <AuctionTimer endsAt={card.endsAt} />
-              )}
-            </div>
+            {card.endsAt && <AuctionTimer endsAt={card.endsAt} />}
+          </div>
         )}
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddToCollection(card);
-          }}
-          className="w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-xl hover:bg-blue-700 transition-colors"
-        >
-          + Add to Collection
-        </button>
+        {card.isAuction ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onBid?.(card);
+            }}
+            className="w-full bg-orange-500 text-white text-sm font-medium py-2 rounded-xl hover:bg-orange-600 transition-colors"
+          >
+            🏷️ Dar Lance
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCollection(card);
+            }}
+            className="w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-xl hover:bg-blue-700 transition-colors"
+          >
+            + Comprar
+          </button>
+        )}
       </div>
     </div>
   );
