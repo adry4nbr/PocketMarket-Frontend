@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tag, Gavel } from "lucide-react";
 import CardItem from "../components/shared/CardItem";
 import CardDetailModal from "../components/shared/CardDetailModal";
 import SearchBar from "../components/shared/SearchBar";
@@ -8,10 +9,41 @@ import api from "../services/api";
 
 const PAGE_SIZE = 8;
 
+const TABS = [
+  { key: "SALE", label: "À Venda", icon: Tag },
+  { key: "AUCTION", label: "Leilões", icon: Gavel },
+];
+
+function adaptListing(listing) {
+  // tenta puxar dados visuais do cache
+  const cache = JSON.parse(localStorage.getItem("listingCache") || "{}");
+  const cached = cache[listing.id] ?? {};
+
+  return {
+    id: listing.id,
+    userCardId: listing.userCardId,
+    name: cached.name ?? "Unknown Card",
+    setName: cached.setName ?? "—",
+    imageUrl: cached.imageUrl ?? "",
+    rarity: cached.rarity ?? "—",
+    condition: cached.condition ?? "—",
+    price: listing.price ?? listing.startingBid ?? 0,
+    isAuction: listing.listingType === "AUCTION",
+    currentBid: listing.currentBid ?? 0,
+    endsAt: listing.auctionEndsAt ?? null,
+    seller: listing.sellerName ?? "—",
+    listingStatus: listing.listingStatus,
+  };
+}
+
 export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const [activeTab, setActiveTab] = useState("SALE");
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [condition, setCondition] = useState("All");
@@ -19,28 +51,30 @@ export default function HomePage() {
   const [favorites, setFavorites] = useState([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const [cards, setCards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  // Busca cards da API
+  // Busca listagens ativas
   useEffect(() => {
-    async function fetchCards() {
+    async function fetchListings() {
       try {
         setLoading(true);
-        const { data } = await api.get("/cards");
-        setCards(data);
+        setError("");
+        const { data } = await api.get("/listings", {
+          params: { page: 0, size: 100 },
+        });
+        const active = (data.content ?? [])
+          .filter((l) => l.listingStatus === "ACTIVE")
+          .map(adaptListing);
+        setListings(active);
       } catch (err) {
         console.error(err);
-        setError("Erro ao carregar os Cards.");
+        setError("Erro ao carregar o marketplace.");
       } finally {
         setLoading(false);
       }
     }
-    fetchCards();
+    fetchListings();
   }, []);
 
-  // Busca favoritos do usuário logado
+  // Busca favoritos
   useEffect(() => {
     async function fetchFavorites() {
       if (!user) {
@@ -51,32 +85,35 @@ export default function HomePage() {
         const { data } = await api.get("/favorites");
         setFavorites(data.map((f) => f.cardId));
       } catch {
-        // silencioso
+        /* silencioso */
       }
     }
     fetchFavorites();
   }, [user]);
 
-  const filtered = cards.filter((card) => {
+  // Filtra por aba + search + rarity + condition
+  const filtered = listings.filter((card) => {
+    const matchTab = card.isAuction === (activeTab === "AUCTION");
     const matchName = card.name.toLowerCase().includes(search.toLowerCase());
     const matchRarity = filter === "All" || card.rarity === filter;
     const matchCondition = condition === "All" || card.condition === condition;
-    return matchName && matchRarity && matchCondition;
+    return matchTab && matchName && matchRarity && matchCondition;
   });
 
   const visible = filtered.slice(0, visibleCount);
 
-  async function handleAddToCollection(card) {
+  async function handleBuy(card) {
     if (!user) {
       navigate("/login");
       return;
     }
     try {
-      await api.post("/collection", { userCardId: card.id });
-      alert(`"${card.name}" adicionado à coleção!`);
+      await api.post(`/purchases/${card.id}/buy`);
+      alert(`"${card.name}" comprada com sucesso!`);
+      // remove da vitrine localmente
+      setListings((prev) => prev.filter((l) => l.id !== card.id));
     } catch (err) {
-      const msg = err.response?.data?.message;
-      alert(msg || "Erro ao adicionar à coleção.");
+      alert(err.response?.data?.message || "Erro ao comprar carta.");
     }
   }
 
@@ -95,14 +132,13 @@ export default function HomePage() {
         setFavorites((prev) => [...prev, card.id]);
       }
     } catch (err) {
-      const msg = err.response?.data?.message;
-      alert(msg || "Erro ao atualizar favoritos.");
+      alert(err.response?.data?.message || "Erro ao atualizar favoritos.");
     }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
-      {/* Hero Banner */}
+      {/* Hero */}
       <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 bg-blue-600 rounded-2xl p-6 sm:p-10 text-white">
         <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
           Official Marketplace
@@ -116,8 +152,29 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* Search + Cards */}
       <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 space-y-4">
+        {/* Abas */}
+        <div className="flex gap-2">
+          {TABS.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => {
+                setActiveTab(key);
+                setVisibleCount(PAGE_SIZE);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors
+                ${
+                  activeTab === key
+                    ? "bg-blue-600 text-white"
+                    : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                }`}
+            >
+              <Icon size={15} />
+              {label}
+            </button>
+          ))}
+        </div>
+
         <SearchBar
           search={search}
           onSearchChange={setSearch}
@@ -129,7 +186,7 @@ export default function HomePage() {
 
         {loading && (
           <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-            <p className="text-lg font-medium">Loading cards...</p>
+            <p className="text-lg font-medium">Loading marketplace...</p>
           </div>
         )}
 
@@ -141,18 +198,18 @@ export default function HomePage() {
 
         {!loading && !error && filtered.length === 0 && (
           <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-            <p className="text-lg font-medium">No cards found.</p>
+            <p className="text-lg font-medium">No listings found.</p>
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && visible.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
             {visible.map((card) => (
               <CardItem
                 key={card.id}
                 card={card}
                 isFavorited={favorites.includes(card.id)}
-                onAddToCollection={handleAddToCollection}
+                onAddToCollection={handleBuy}
                 onToggleFavorite={handleToggleFavorite}
                 onClick={setSelectedCard}
               />
@@ -160,14 +217,13 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Load More */}
         {visibleCount < filtered.length && (
           <div className="flex justify-center py-6">
             <button
               onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
               className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              Load More Cards
+              Load More
             </button>
           </div>
         )}
@@ -176,7 +232,7 @@ export default function HomePage() {
       <CardDetailModal
         card={selectedCard}
         onClose={() => setSelectedCard(null)}
-        onAddToCollection={handleAddToCollection}
+        onAddToCollection={handleBuy}
       />
     </div>
   );
