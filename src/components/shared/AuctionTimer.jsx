@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function AuctionTimer({ endsAt }) {
+    const { t } = useLanguage();
     const [timeLeft, setTimeLeft] = useState("");
 
     useEffect(() => {
@@ -8,7 +10,7 @@ export default function AuctionTimer({ endsAt }) {
             const diff = new Date(endsAt) - new Date();
 
             if (diff <= 0) {
-                setTimeLeft("Ended");
+                setTimeLeft(t("common.ended"));
                 clearInterval(interval);
                 return;
             }
@@ -27,7 +29,11 @@ export default function AuctionTimer({ endsAt }) {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [endsAt]);
+    }, [endsAt, t]);
 
-    return <span>⏰ {timeLeft}</span>;
+    return (
+        <span role="timer" aria-live="polite" aria-label={t("accessibility.timer", { time: timeLeft })}>
+            ⏰ {timeLeft}
+        </span>
+    );
 }

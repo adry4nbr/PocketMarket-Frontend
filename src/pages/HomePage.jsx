@@ -3,20 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { Tag, Gavel, LayoutGrid } from "lucide-react";
 import CardItem from "../components/shared/CardItem";
 import CardDetailModal from "../components/shared/CardDetailModal";
+import ConfirmationModal from "../components/shared/ConfirmationModal";
 import SearchBar from "../components/shared/SearchBar";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import api from "../services/api";
 
 const PAGE_SIZE = 8;
 
 const TABS = [
-  { key: "ALL", label: "Todos", icon: LayoutGrid },
-  { key: "SALE", label: "À Venda", icon: Tag },
-  { key: "AUCTION", label: "Leilões", icon: Gavel },
+  { key: "ALL", labelKey: "home.tabs.all", icon: LayoutGrid },
+  { key: "SALE", labelKey: "home.tabs.sale", icon: Tag },
+  { key: "AUCTION", labelKey: "home.tabs.auction", icon: Gavel },
 ];
 
 export default function HomePage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("ALL");
@@ -29,6 +32,14 @@ export default function HomePage() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [dialog, setDialog] = useState({
+    open: false,
+    title: "",
+    message: "",
+    confirmLabel: t("common.close"),
+    cancelLabel: null,
+    isDanger: false,
+  });
 
   useEffect(() => {
     async function fetchListings() {
@@ -54,7 +65,7 @@ export default function HomePage() {
               return {
                 id: listing.id,
                 userCardId: listing.userCardId,
-                name: userCard.card?.name ?? "Unknown Card",
+                name: userCard.card?.name ?? t("common.unknownCard"),
                 setName: userCard.card?.setName ?? "—",
                 imageUrl:
                   userCard.card?.imageLargeUrl ??
@@ -74,7 +85,7 @@ export default function HomePage() {
               return {
                 id: listing.id,
                 userCardId: listing.userCardId,
-                name: "Unknown Card",
+                name: t("common.unknownCard"),
                 setName: "—",
                 imageUrl: null,
                 rarity: "—",
@@ -94,13 +105,13 @@ export default function HomePage() {
         setListings(enriched);
       } catch (err) {
         console.error(err);
-        setError("Erro ao carregar o marketplace.");
+        setError(t("home.loadError"));
       } finally {
         setLoading(false);
       }
     }
     fetchListings();
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     async function fetchFavorites() {
@@ -138,10 +149,24 @@ export default function HomePage() {
     }
     try {
       await api.post(`/purchases/${card.id}/buy`);
-      alert(`"${card.name}" comprada com sucesso!`);
       setListings((prev) => prev.filter((l) => l.id !== card.id));
+      setDialog({
+        open: true,
+        title: t("home.buySuccessTitle"),
+        message: t("home.buySuccess", { name: card.name }),
+        confirmLabel: t("common.close"),
+        cancelLabel: null,
+        isDanger: false,
+      });
     } catch (err) {
-      alert(err.response?.data?.message || "Erro ao comprar carta.");
+      setDialog({
+        open: true,
+        title: t("common.error"),
+        message: err.response?.data?.message || t("home.buyError"),
+        confirmLabel: t("common.close"),
+        cancelLabel: null,
+        isDanger: true,
+      });
     }
   }
 
@@ -160,7 +185,15 @@ export default function HomePage() {
         setFavorites((prev) => [...prev, card.id]);
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Erro ao atualizar favoritos.");
+      setDialog({
+        open: true,
+        title: t("common.error"),
+        message:
+          err.response?.data?.message || t("home.favoriteError"),
+        confirmLabel: t("common.close"),
+        cancelLabel: null,
+        isDanger: true,
+      });
     }
   }
 
@@ -175,24 +208,24 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       {/* Hero */}
-      <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 bg-blue-600 rounded-2xl p-6 sm:p-10 text-white">
-        <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
-          Official Marketplace
+      <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 bg-blue-600 rounded-2xl p-6 sm:p-10 text-white shadow-sm shadow-red-900/10 border border-red-700/20 dark:border-red-400/10">
+        <span className="bg-yellow-400 text-gray-950 text-xs font-semibold px-3 py-1 rounded-full">
+          {t("home.badge")}
         </span>
         <h1 className="text-xl sm:text-4xl font-bold mt-4 mb-2">
-          Gotta collect 'em all
+          {t("home.title")}
         </h1>
-        <p className="text-blue-100 text-sm sm:text-base max-w-md">
-          Discover, buy, and track the value of your favorite Pokémon TCG cards
-          in real-time.
+        <p className="text-red-50 text-sm sm:text-base max-w-md">
+          {t("home.subtitle")}
         </p>
       </div>
 
       <div className="mx-3 sm:mx-6 mt-4 sm:mt-6 space-y-4">
         {/* Abas */}
-        <div className="flex gap-2">
-          {TABS.map(({ key, label, icon: Icon }) => (
+        <div className="flex gap-2" role="tablist" aria-label={t("home.tabLabel")}>
+          {TABS.map(({ key, labelKey, icon: Icon }) => (
             <button
+              type="button"
               key={key}
               onClick={() => {
                 setActiveTab(key);
@@ -204,9 +237,11 @@ export default function HomePage() {
                     ? "bg-blue-600 text-white"
                     : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                 }`}
+              role="tab"
+              aria-selected={activeTab === key}
             >
               <Icon size={15} />
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
@@ -222,7 +257,7 @@ export default function HomePage() {
 
         {loading && (
           <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-            <p className="text-lg font-medium">Loading marketplace...</p>
+            <p className="text-lg font-medium">{t("home.loading")}</p>
           </div>
         )}
 
@@ -234,12 +269,12 @@ export default function HomePage() {
 
         {!loading && !error && filtered.length === 0 && (
           <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-            <p className="text-lg font-medium">No listings found.</p>
+            <p className="text-lg font-medium">{t("home.empty")}</p>
           </div>
         )}
 
         {!loading && !error && visible.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(236px,260px))] justify-center gap-6 sm:gap-7 lg:gap-8">
             {visible.map((card) => {
               const isOwner = isOwnerCheck(card);
               return (
@@ -258,13 +293,26 @@ export default function HomePage() {
           </div>
         )}
 
+        <ConfirmationModal
+          isOpen={dialog.open}
+          title={dialog.title}
+          message={dialog.message}
+          confirmLabel={dialog.confirmLabel}
+          cancelLabel={dialog.cancelLabel}
+          isDanger={dialog.isDanger}
+          onConfirm={() => setDialog((prev) => ({ ...prev, open: false }))}
+          onCancel={() => setDialog((prev) => ({ ...prev, open: false }))}
+          onClose={() => setDialog((prev) => ({ ...prev, open: false }))}
+        />
+
         {visibleCount < filtered.length && (
           <div className="flex justify-center py-6">
             <button
+              type="button"
               onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
               className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              Load More
+              {t("home.loadMore")}
             </button>
           </div>
         )}
