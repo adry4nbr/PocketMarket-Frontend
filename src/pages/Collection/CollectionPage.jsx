@@ -44,7 +44,9 @@ export default function CollectionPage() {
 
       {/* Conteúdo */}
       {activeTab === "collection" && <MyCollection />}
-      {activeTab === "catalog" && <CatalogSearch />}
+      {activeTab === "catalog" && (
+        <CatalogSearch onSuccess={() => setActiveTab("collection")} />
+      )}
     </div>
   );
 }
