@@ -60,6 +60,7 @@ export default function TradeModal({ isOpen, onClose, card }) {
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  if (!card) return null;
 
   const availableCards = collection.filter(
     (item) => item.status === "AVAILABLE",

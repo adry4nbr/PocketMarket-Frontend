@@ -255,6 +255,7 @@ const translations = {
         "Proposta enviada (id: {id}): {offered} → {requested}. A troca só será concluída quando o dono da carta aceitar a proposta.",
       loadError: "Erro ao carregar sua coleção.",
       sendError: "Erro ao enviar proposta.",
+      invalidCard: "A carta selecionada está faltando os dados necessários para a troca.",
     },
     auth: {
       loginTitle: "Bem-vindo de volta",
