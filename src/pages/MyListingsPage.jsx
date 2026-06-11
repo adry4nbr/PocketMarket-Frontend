@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Megaphone, Trash2, LayoutGrid, Tag, Gavel } from "lucide-react";
 import api from "../services/api";
 import AuctionTimer from "../components/shared/AuctionTimer";
+import { useAuth } from "../context/AuthContext";
 
 const TABS = [
   { key: "ALL", label: "Todos", icon: LayoutGrid },
@@ -10,6 +11,7 @@ const TABS = [
 ];
 
 export default function MyListingsPage() {
+  const { user } = useAuth();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -17,21 +19,49 @@ export default function MyListingsPage() {
 
   useEffect(() => {
     async function fetchListings() {
+      if (!user) return;
+
       try {
         setLoading(true);
         const { data } = await api.get("/listings", {
           params: { page: 0, size: 100 },
         });
 
-        const cache = JSON.parse(localStorage.getItem("listingCache") || "{}");
+        // Filtra para pegar apenas os anúncios ativos e que pertencem ao usuário logado
+        // Temporariamente usando sellerName vs user.name enquanto não temos id no login
+        const myActive = (data.content ?? []).filter(
+          (l) => l.listingStatus === "ACTIVE" && l.sellerName === user.name,
+        );
 
-        const myActive = (data.content ?? [])
-          .filter(
-            (l) => l.listingStatus === "ACTIVE" && cache[l.id] !== undefined,
-          )
-          .map((l) => ({ ...l, ...(cache[l.id] ?? {}) }));
+        // Enriquece cada listing com os dados visuais direto da API
+        const enriched = await Promise.all(
+          myActive.map(async (listing) => {
+            try {
+              const { data: userCard } = await api.get(
+                `/user-cards/${listing.userCardId}`,
+              );
+              return {
+                ...listing,
+                name: userCard.card?.name ?? "Unknown Card",
+                setName: userCard.card?.setName ?? "—",
+                imageUrl:
+                  userCard.card?.imageLargeUrl ??
+                  userCard.card?.imageSmallUrl ??
+                  null,
+                condition: userCard.condition ?? "—",
+              };
+            } catch {
+              return {
+                ...listing,
+                name: "Unknown Card",
+                imageUrl: null,
+                condition: "—",
+              };
+            }
+          }),
+        );
 
-        setListings(myActive);
+        setListings(enriched);
       } catch (err) {
         console.error(err);
         setError("Erro ao carregar seus anúncios.");
@@ -40,16 +70,13 @@ export default function MyListingsPage() {
       }
     }
     fetchListings();
-  }, []);
+  }, [user]);
 
   async function handleCancel(listingId) {
     if (!confirm("Tem certeza que deseja cancelar este anúncio?")) return;
     try {
       await api.patch(`/listings/${listingId}/cancel`);
       setListings((prev) => prev.filter((l) => l.id !== listingId));
-      const cache = JSON.parse(localStorage.getItem("listingCache") || "{}");
-      delete cache[listingId];
-      localStorage.setItem("listingCache", JSON.stringify(cache));
     } catch (err) {
       alert(err.response?.data?.message || "Erro ao cancelar anúncio.");
     }

@@ -1,6 +1,12 @@
 import AuctionTimer from "./AuctionTimer";
 
-export default function CardItem({ card, onAddToCollection, onClick, onBid }) {
+export default function CardItem({
+  card,
+  onAddToCollection,
+  onClick,
+  onBid,
+  isOwner,
+}) {
   return (
     <div
       className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
@@ -23,6 +29,13 @@ export default function CardItem({ card, onAddToCollection, onClick, onBid }) {
             </span>
           </div>
         )}
+        {isOwner && (
+          <div className="absolute top-2 right-2">
+            <span className="bg-gray-800/70 text-white text-xs font-medium px-2 py-1 rounded-full">
+              Seu anúncio
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info */}
@@ -38,12 +51,11 @@ export default function CardItem({ card, onAddToCollection, onClick, onBid }) {
           </div>
           <div className="text-right shrink-0">
             <p className="font-bold text-gray-900 dark:text-gray-100">
-              ${card.price.toFixed(2)}
+              {card.price} cr
             </p>
-
             {card.isAuction && (
               <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                Current Bid: ${(card.currentBid ?? 0).toFixed(2)}
+                Current Bid: {card.currentBid ?? 0} cr
               </p>
             )}
           </div>
@@ -54,31 +66,35 @@ export default function CardItem({ card, onAddToCollection, onClick, onBid }) {
             <span className="text-orange-600 dark:text-orange-400 font-medium">
               Auction Ends
             </span>
-
             {card.endsAt && <AuctionTimer endsAt={card.endsAt} />}
           </div>
         )}
 
-        {card.isAuction ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onBid?.(card);
-            }}
-            className="w-full bg-orange-500 text-white text-sm font-medium py-2 rounded-xl hover:bg-orange-600 transition-colors"
-          >
-            🏷️ Dar Lance
-          </button>
-        ) : (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCollection(card);
-            }}
-            className="w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-xl hover:bg-blue-700 transition-colors"
-          >
-            + Comprar
-          </button>
+        {/* esconde botões se for anúncio próprio */}
+        {!isOwner && (
+          <>
+            {card.isAuction ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onBid?.(card);
+                }}
+                className="w-full bg-orange-500 text-white text-sm font-medium py-2 rounded-xl hover:bg-orange-600 transition-colors"
+              >
+                🏷️ Dar Lance
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddToCollection(card);
+                }}
+                className="w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-xl hover:bg-blue-700 transition-colors"
+              >
+                + Comprar
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

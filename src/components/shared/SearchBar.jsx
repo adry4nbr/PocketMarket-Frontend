@@ -9,12 +9,14 @@ import {
 
 const rarities = [
   { value: "All", label: "All" },
-  { value: "COMMON", label: "Common" },
-  { value: "UNCOMMON", label: "Uncommon" },
-  { value: "RARE", label: "Rare" },
-  { value: "HOLO_RARE", label: "Holo Rare" },
-  { value: "ULTRA_RARE", label: "Ultra Rare" },
-  { value: "SECRET_RARE", label: "Secret Rare" },
+  { value: "Common", label: "Common" },
+  { value: "Uncommon", label: "Uncommon" },
+  { value: "Rare", label: "Rare" },
+  { value: "Rare Holo", label: "Rare Holo" },
+  { value: "Promo", label: "Promo" },
+  { value: "Rare Holo EX", label: "Rare Holo EX" },
+  { value: "Ultra Rare", label: "Ultra Rare" },
+  { value: "Secret Rare", label: "Secret Rare" },
 ];
 
 const conditions = [
