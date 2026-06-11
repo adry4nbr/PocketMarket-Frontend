@@ -1,22 +1,36 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function RegisterPage() {
+  const { registerRequest } = useAuth();
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    if (name && email && password) {
-      navigate("/login");
-    } else {
+
+    if (!name || !email || !password) {
       setError("Preencha todos os campos.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await registerRequest(name, email, password);
+      navigate("/");
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      setError(msg || "Erro ao criar conta. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -82,9 +96,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl hover:bg-blue-700 transition-colors"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {loading ? "Criando conta..." : "Sign Up"}
           </button>
         </form>
 
