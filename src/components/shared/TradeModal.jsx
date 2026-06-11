@@ -97,7 +97,6 @@ export default function TradeModal({ isOpen, onClose, card }) {
         open: true,
         title: t("tradeModal.sentTitle"),
         message: t("tradeModal.sentMessage", {
-          id: data.id ?? "?",
           offered: myCard.card?.name ?? t("common.cardFallback"),
           requested: card.name,
         }),
@@ -153,9 +152,7 @@ export default function TradeModal({ isOpen, onClose, card }) {
 
           {!loading && availableCards.length === 0 && (
             <div className="text-center py-10 text-gray-400">
-              <p className="text-sm font-medium">
-                {t("tradeModal.empty")}
-              </p>
+              <p className="text-sm font-medium">{t("tradeModal.empty")}</p>
             </div>
           )}
 

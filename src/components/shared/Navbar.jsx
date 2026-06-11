@@ -42,6 +42,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!user) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCredits();
   }, [fetchCredits, user]);
 
@@ -63,7 +64,10 @@ export default function Navbar() {
             className="flex items-center gap-2"
             onClick={() => setMenuOpen(false)}
           >
-            <div className="pokeball-mark h-8 w-8 rounded-full shrink-0" aria-hidden="true" />
+            <div
+              className="pokeball-mark h-8 w-8 rounded-full shrink-0"
+              aria-hidden="true"
+            />
             <span className="font-bold text-lg text-gray-900 dark:text-gray-100">
               PocketMarket
             </span>

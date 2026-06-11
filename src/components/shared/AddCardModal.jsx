@@ -80,6 +80,7 @@ export default function AddCardModal({ card, onClose, onSuccess }) {
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={error ? errorId : undefined}
+        translate="no"
       >
         {/* Fechar */}
         <button
@@ -102,7 +103,10 @@ export default function AddCardModal({ card, onClose, onSuccess }) {
             }}
           />
           <div>
-            <h2 id={titleId} className="font-bold text-gray-900 dark:text-gray-100">
+            <h2
+              id={titleId}
+              className="font-bold text-gray-900 dark:text-gray-100"
+            >
               {card.name}
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">

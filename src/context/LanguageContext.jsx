@@ -252,10 +252,11 @@ const translations = {
       offer: "Oferecer",
       sentTitle: "Proposta enviada",
       sentMessage:
-        "Proposta enviada (id: {id}): {offered} → {requested}. A troca só será concluída quando o dono da carta aceitar a proposta.",
+        "Proposta enviada: {offered} → {requested}. A troca só será concluída quando o dono da carta aceitar a proposta.",
       loadError: "Erro ao carregar sua coleção.",
       sendError: "Erro ao enviar proposta.",
-      invalidCard: "A carta selecionada está faltando os dados necessários para a troca.",
+      invalidCard:
+        "A carta selecionada está faltando os dados necessários para a troca.",
     },
     auth: {
       loginTitle: "Bem-vindo de volta",
@@ -528,7 +529,7 @@ const translations = {
       offer: "Offer",
       sentTitle: "Offer sent",
       sentMessage:
-        "Offer sent (id: {id}): {offered} → {requested}. The trade will only be completed when the card owner accepts the offer.",
+        "Offer sent: {offered} → {requested}. The trade will only be completed when the card owner accepts the offer.",
       loadError: "Error loading your collection.",
       sendError: "Error sending offer.",
       invalidCard: "The selected card is missing required trade data.",
