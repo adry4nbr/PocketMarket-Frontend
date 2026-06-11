@@ -200,9 +200,9 @@ export default function MyListingsPage() {
                       {listing.currentBid ?? listing.startingBid ?? 0}
                     </p>
                     {listing.auctionEndsAt && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <div className="mt-2 text-xs font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1 inline-block">
                         <AuctionTimer endsAt={listing.auctionEndsAt} />
-                      </p>
+                      </div>
                     )}
                   </div>
                 ) : (

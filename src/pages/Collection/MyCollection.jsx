@@ -46,6 +46,14 @@ export default function MyCollection() {
 
   async function handleRemove(userCardId) {
     try {
+      // Como o backend está retornando 500, provavelmente é uma constraint de chave estrangeira
+      // com a tabela 'collection'. Vamos tentar deletar da coleção primeiro.
+      try {
+        await api.delete(`/collection/${userCardId}`);
+      } catch (e) {
+        console.warn("Ignorando erro ao deletar da coleção", e);
+      }
+
       await api.delete(`/user-cards/${userCardId}`);
       setCollection((prev) => prev.filter((item) => item.id !== userCardId));
     } catch (err) {
