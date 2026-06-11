@@ -63,10 +63,9 @@ export default function CardItem({
 
         {card.isAuction && (
           <div className="mb-3 flex items-center justify-between text-sm">
-            <span className="text-orange-600 dark:text-orange-400 font-medium">
-              Auction Ends
-            </span>
-            {card.endsAt && <AuctionTimer endsAt={card.endsAt} />}
+            <div className="mt-2 text-xs font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1 inline-block">
+              {card.endsAt && <AuctionTimer endsAt={card.endsAt} />}
+            </div>
           </div>
         )}
 

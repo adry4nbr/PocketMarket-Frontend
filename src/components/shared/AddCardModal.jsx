@@ -138,9 +138,11 @@ export default function AddCardModal({ card, onClose, onSuccess }) {
           disabled={isLoading}
           className="w-full bg-blue-600 text-white font-medium py-2.5 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
-          {step === "uploading" && "📤 Enviando imagem..."}
-          {step === "saving" && "💾 Salvando..."}
-          {!isLoading && "Confirmar"}
+          {step === "uploading"
+            ? "📤 Enviando imagem..."
+            : step === "saving"
+            ? "💾 Salvando..."
+            : "Confirmar"}
         </button>
       </div>
     </div>

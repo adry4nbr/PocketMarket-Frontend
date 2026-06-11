@@ -4,7 +4,7 @@ import { searchCatalog, listCatalog } from "../../services/catalogService";
 import AddCardModal from "../../components/shared/AddCardModal";
 import { useDebounce } from "../../hooks/useDebounce";
 
-export default function CatalogSearch() {
+export default function CatalogSearch({ onSuccess }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -102,7 +102,10 @@ export default function CatalogSearch() {
         <AddCardModal
           card={selectedCard}
           onClose={() => setSelectedCard(null)}
-          onSuccess={() => setSelectedCard(null)}
+          onSuccess={() => {
+            setSelectedCard(null);
+            if (onSuccess) onSuccess();
+          }}
         />
       )}
     </div>

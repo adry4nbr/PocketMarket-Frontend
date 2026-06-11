@@ -46,6 +46,26 @@ export default function MyCollection() {
 
   async function handleRemove(userCardId) {
     try {
+      // Verifica se a carta está nos favoritos antes de remover
+      const item = collection.find((c) => c.id === userCardId);
+      const cardId = item?.card?.id;
+
+      if (cardId && favorites.includes(cardId)) {
+        try {
+          await api.delete(`/favorites/${cardId}`);
+          setFavorites((prev) => prev.filter((id) => id !== cardId));
+        } catch (e) {
+          console.warn("Não foi possível remover dos favoritos:", e);
+        }
+      }
+
+      // Remove da coleção (tenta /collection primeiro por FK constraint)
+      try {
+        await api.delete(`/collection/${userCardId}`);
+      } catch (e) {
+        console.warn("Ignorando erro ao deletar da coleção", e);
+      }
+
       await api.delete(`/user-cards/${userCardId}`);
       setCollection((prev) => prev.filter((item) => item.id !== userCardId));
     } catch (err) {
