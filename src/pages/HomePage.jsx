@@ -15,28 +15,6 @@ const TABS = [
   { key: "AUCTION", label: "Leilões", icon: Gavel },
 ];
 
-function adaptListing(listing) {
-  // tenta puxar dados visuais do cache
-  const cache = JSON.parse(localStorage.getItem("listingCache") || "{}");
-  const cached = cache[listing.id] ?? {};
-
-  return {
-    id: listing.id,
-    userCardId: listing.userCardId,
-    name: cached.name ?? "Unknown Card",
-    setName: cached.setName ?? "—",
-    imageUrl: cached.imageUrl ?? "",
-    rarity: cached.rarity ?? "—",
-    condition: cached.condition ?? "—",
-    price: listing.price ?? listing.startingBid ?? 0,
-    isAuction: listing.listingType === "AUCTION",
-    currentBid: listing.currentBid ?? 0,
-    endsAt: listing.auctionEndsAt ?? null,
-    seller: listing.sellerName ?? "—",
-    listingStatus: listing.listingStatus,
-  };
-}
-
 export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -52,19 +30,68 @@ export default function HomePage() {
   const [favorites, setFavorites] = useState([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  // Busca listagens ativas
   useEffect(() => {
     async function fetchListings() {
       try {
         setLoading(true);
         setError("");
+
         const { data } = await api.get("/listings", {
           params: { page: 0, size: 100 },
         });
-        const active = (data.content ?? [])
-          .filter((l) => l.listingStatus === "ACTIVE")
-          .map(adaptListing);
-        setListings(active);
+
+        const active = (data.content ?? []).filter(
+          (l) => l.listingStatus === "ACTIVE",
+        );
+
+        // enriquece cada listing com dados visuais da carta
+        const enriched = await Promise.all(
+          active.map(async (listing) => {
+            try {
+              const { data: userCard } = await api.get(
+                `/user-cards/${listing.userCardId}`,
+              );
+              return {
+                id: listing.id,
+                userCardId: listing.userCardId,
+                name: userCard.card?.name ?? "Unknown Card",
+                setName: userCard.card?.setName ?? "—",
+                imageUrl:
+                  userCard.card?.imageLargeUrl ??
+                  userCard.card?.imageSmallUrl ??
+                  null,
+                rarity: userCard.card?.rarity ?? "—",
+                condition: userCard.condition ?? "—",
+                price: listing.price ?? listing.startingBid ?? 0,
+                isAuction: listing.listingType === "AUCTION",
+                currentBid: listing.currentBid ?? 0,
+                endsAt: listing.auctionEndsAt ?? null,
+                seller: listing.sellerName ?? "—",
+                sellerId: listing.sellerId,
+                listingStatus: listing.listingStatus,
+              };
+            } catch {
+              return {
+                id: listing.id,
+                userCardId: listing.userCardId,
+                name: "Unknown Card",
+                setName: "—",
+                imageUrl: null,
+                rarity: "—",
+                condition: "—",
+                price: listing.price ?? listing.startingBid ?? 0,
+                isAuction: listing.listingType === "AUCTION",
+                currentBid: listing.currentBid ?? 0,
+                endsAt: listing.auctionEndsAt ?? null,
+                seller: listing.sellerName ?? "—",
+                sellerId: listing.sellerId,
+                listingStatus: listing.listingStatus,
+              };
+            }
+          }),
+        );
+
+        setListings(enriched);
       } catch (err) {
         console.error(err);
         setError("Erro ao carregar o marketplace.");
@@ -75,7 +102,6 @@ export default function HomePage() {
     fetchListings();
   }, []);
 
-  // Busca favoritos
   useEffect(() => {
     async function fetchFavorites() {
       if (!user) {
@@ -92,7 +118,6 @@ export default function HomePage() {
     fetchFavorites();
   }, [user]);
 
-  // Filtra por aba + search + rarity + condition
   const filtered = listings.filter((card) => {
     const matchTab =
       activeTab === "ALL" ||
@@ -114,7 +139,6 @@ export default function HomePage() {
     try {
       await api.post(`/purchases/${card.id}/buy`);
       alert(`"${card.name}" comprada com sucesso!`);
-      // remove da vitrine localmente
       setListings((prev) => prev.filter((l) => l.id !== card.id));
     } catch (err) {
       alert(err.response?.data?.message || "Erro ao comprar carta.");
@@ -138,6 +162,14 @@ export default function HomePage() {
     } catch (err) {
       alert(err.response?.data?.message || "Erro ao atualizar favoritos.");
     }
+  }
+
+  // verifica se o listing pertence ao usuário logado pelo email do seller
+  // já que não temos id no user, comparamos pelo sellerName com o user.name
+  // TODO: trocar por sellerId quando backend retornar id no login
+  function isOwnerCheck(card) {
+    if (!user) return false;
+    return card.seller === user.name;
   }
 
   return (
@@ -208,20 +240,21 @@ export default function HomePage() {
 
         {!loading && !error && visible.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
-            {visible.map((card) => (
-              <CardItem
-                key={card.id}
-                card={card}
-                isFavorited={favorites.includes(card.id)}
-                onAddToCollection={handleBuy}
-                onToggleFavorite={handleToggleFavorite}
-                onClick={setSelectedCard}
-                onBid={(card) => {
-                  // por enquanto abre o CardDetailModal onde já tem o campo de lance
-                  setSelectedCard(card);
-                }}
-              />
-            ))}
+            {visible.map((card) => {
+              const isOwner = isOwnerCheck(card);
+              return (
+                <CardItem
+                  key={card.id}
+                  card={card}
+                  isFavorited={favorites.includes(card.id)}
+                  onAddToCollection={handleBuy}
+                  onToggleFavorite={handleToggleFavorite}
+                  isOwner={isOwner}
+                  onClick={(c) => setSelectedCard({ ...c, isOwner })}
+                  onBid={(c) => setSelectedCard({ ...c, isOwner })}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -241,6 +274,7 @@ export default function HomePage() {
         card={selectedCard}
         onClose={() => setSelectedCard(null)}
         onAddToCollection={handleBuy}
+        isOwner={selectedCard?.isOwner ?? false}
       />
     </div>
   );

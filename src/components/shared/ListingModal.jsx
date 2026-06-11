@@ -13,7 +13,7 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
   const [startingBid, setStartingBid] = useState("");
   const [minIncrement, setMinIncrement] = useState("");
   const [auctionEndsAt, setAuctionEndsAt] = useState("");
-  const [step, setStep] = useState("idle"); // idle | loading | error
+  const [step, setStep] = useState("idle");
   const [error, setError] = useState("");
 
   if (!userCard) return null;
@@ -23,15 +23,13 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
     setStep("loading");
 
     try {
-      let response;
-
       if (tab === "SALE") {
         if (!price || Number(price) <= 0) {
           setError("Informe um preço válido.");
           setStep("error");
           return;
         }
-        response = await api.post(`/listings/sale/${userCard.id}`, {
+        await api.post(`/listings/sale/${userCard.id}`, {
           price: Number(price),
         });
       } else {
@@ -40,26 +38,12 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
           setStep("error");
           return;
         }
-        response = await api.post(`/listings/auction/${userCard.id}`, {
+        await api.post(`/listings/auction/${userCard.id}`, {
           startingBid: Number(startingBid),
           minBidIncrement: Number(minIncrement),
           auctionEndsAt: new Date(auctionEndsAt).toISOString(),
         });
       }
-
-      // ← gambiarra: salva dados visuais da carta no localStorage
-      const listingId = response.data.id;
-      const cache = JSON.parse(localStorage.getItem("listingCache") || "{}");
-      cache[listingId] = {
-        name: userCard.card?.name ?? "Unknown Card",
-        setName: userCard.card?.setName ?? "—",
-        imageUrl:
-          userCard.card?.imageLargeUrl ?? userCard.card?.imageSmallUrl ?? "",
-        rarity: userCard.card?.rarity ?? "—",
-        condition: userCard.condition ?? "—",
-        sellerId: response.data.sellerId,
-      };
-      localStorage.setItem("listingCache", JSON.stringify(cache));
 
       setStep("idle");
       onSuccess?.();
@@ -79,7 +63,6 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
         className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 sm:p-6 relative border-t sm:border border-gray-100 dark:border-gray-700 transition-colors duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Fechar */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
@@ -87,7 +70,6 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
           <X size={20} />
         </button>
 
-        {/* Header */}
         <div className="flex items-center gap-3 mb-5">
           <img
             src={userCard.card?.imageLargeUrl ?? userCard.card?.imageSmallUrl}
@@ -107,7 +89,6 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
           </div>
         </div>
 
-        {/* Abas SALE / AUCTION */}
         <div className="flex gap-2 mb-5">
           {TABS.map(({ key, label, icon: Icon }) => (
             <button
@@ -129,7 +110,6 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
           ))}
         </div>
 
-        {/* Campos SALE */}
         {tab === "SALE" && (
           <div className="mb-5">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">
@@ -146,7 +126,6 @@ export default function ListingModal({ userCard, onClose, onSuccess }) {
           </div>
         )}
 
-        {/* Campos AUCTION */}
         {tab === "AUCTION" && (
           <div className="space-y-4 mb-5">
             <div>
