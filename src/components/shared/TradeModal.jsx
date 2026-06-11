@@ -3,31 +3,43 @@ import api from "../../services/api";
 
 export default function TradeModal({ isOpen, onClose, card }) {
   const [myCards, setMyCards] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  async function loadMyCollection() {
-    try {
-      setLoading(true);
-      setError("");
-      const { data } = await api.get("/user-cards/me?page=0&size=100");
-      const availableCards = (data.content || []).filter(
-        (c) => c.status === "AVAILABLE",
-      );
-      setMyCards(availableCards);
-    } catch (err) {
-      console.error(err);
-      setError("Erro ao carregar sua coleção.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    if (isOpen) {
-      loadMyCollection();
-    }
+    if (!isOpen) return;
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    setLoading(true); // eslint-disable-line react-hooks/exhaustive-deps
+    setError("");
+
+    api
+      .get("/user-cards/me?page=0&size=100", { signal: controller.signal })
+      .then(({ data }) => {
+        if (!cancelled) {
+          const availableCards = (data.content || []).filter(
+            (c) => c.status === "AVAILABLE",
+          );
+          setMyCards(availableCards);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.error(err);
+          setError("Erro ao carregar sua coleção.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [isOpen]);
 
   async function handleOfferTrade(myCardId) {
