@@ -110,10 +110,7 @@ export default function CatalogSearch() {
         <AddCardModal
           card={selectedCard}
           onClose={() => setSelectedCard(null)}
-          onSuccess={() => {
-            setSelectedCard(null);
-            if (onSuccess) onSuccess();
-          }}
+          onSuccess={() => setSelectedCard(null)}
         />
       )}
     </div>

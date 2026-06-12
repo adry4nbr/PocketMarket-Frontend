@@ -64,7 +64,6 @@ export default function MyCollection() {
 
   async function handleRemove(userCardId) {
     try {
-      // Verifica se a carta está nos favoritos antes de remover
       const item = collection.find((c) => c.id === userCardId);
       const cardId = item?.card?.id;
 
@@ -77,7 +76,6 @@ export default function MyCollection() {
         }
       }
 
-      // Remove da coleção (tenta /collection primeiro por FK constraint)
       try {
         await api.delete(`/collection/${userCardId}`);
       } catch (e) {
@@ -87,10 +85,13 @@ export default function MyCollection() {
       await api.delete(`/user-cards/${userCardId}`);
       setCollection((prev) => prev.filter((item) => item.id !== userCardId));
     } catch (err) {
+      const is500 = err.response?.status === 500;
       setDialog({
         open: true,
         title: t("common.error"),
-        message: err.response?.data?.message || t("collection.removeError"),
+        message: is500
+          ? t("collection.removeTradeError")
+          : err.response?.data?.message || t("collection.removeError"),
         confirmLabel: t("common.close"),
         cancelLabel: null,
         isDanger: true,

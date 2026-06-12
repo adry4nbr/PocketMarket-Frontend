@@ -6,7 +6,11 @@ import AllUserCards from "./AllUserCards";
 import { useLanguage } from "../../context/LanguageContext";
 
 const TABS = [
-  { key: "collection", labelKey: "collection.tabs.collection", icon: BarChart2 },
+  {
+    key: "collection",
+    labelKey: "collection.tabs.collection",
+    icon: BarChart2,
+  },
   { key: "catalog", labelKey: "collection.tabs.catalog", icon: Search },
   { key: "all", labelKey: "collection.tabs.allCards", icon: Search },
 ];
@@ -28,7 +32,11 @@ export default function CollectionPage() {
       </div>
 
       {/* Abas */}
-      <div className="flex gap-2 mb-6" role="tablist" aria-label={t("collection.tabLabel")}>
+      <div
+        className="flex gap-2 mb-6"
+        role="tablist"
+        aria-label={t("collection.tabLabel")}
+      >
         {TABS.map(({ key, labelKey, icon: Icon }) => (
           <button
             type="button"

@@ -138,6 +138,8 @@ const translations = {
       favoriteRemoveTitle: "Remover dos favoritos",
       favoriteError: "Erro ao atualizar favoritos.",
       removeError: "Erro ao remover carta.",
+      removeTradeError:
+        "Não é possível remover esta carta pois ela está vinculada a uma proposta de troca ativa.",
       owner: "Dono",
       allCardsSearchLabel: "Buscar cartas de todos os usuários",
       allCardsPlaceholder: "Buscar cartas de todos os usuários...",
@@ -252,7 +254,7 @@ const translations = {
       offer: "Oferecer",
       sentTitle: "Proposta enviada",
       sentMessage:
-        "Proposta enviada: {offered} → {requested}. A troca só será concluída quando o dono da carta aceitar a proposta.",
+        "Proposta enviada (id: {id}): {offered} → {requested}. A troca só será concluída quando o dono da carta aceitar a proposta.",
       loadError: "Erro ao carregar sua coleção.",
       sendError: "Erro ao enviar proposta.",
       invalidCard:
@@ -420,6 +422,8 @@ const translations = {
       favoriteRemoveTitle: "Remove from favorites",
       favoriteError: "Error updating favorites.",
       removeError: "Error removing card.",
+      removeTradeError:
+        "This card cannot be removed because it is linked to an active trade offer.",
     },
     catalog: {
       searchLabel: "Search card in catalog",
@@ -529,7 +533,7 @@ const translations = {
       offer: "Offer",
       sentTitle: "Offer sent",
       sentMessage:
-        "Offer sent: {offered} → {requested}. The trade will only be completed when the card owner accepts the offer.",
+        "Offer sent (id: {id}): {offered} → {requested}. The trade will only be completed when the card owner accepts the offer.",
       loadError: "Error loading your collection.",
       sendError: "Error sending offer.",
       invalidCard: "The selected card is missing required trade data.",
