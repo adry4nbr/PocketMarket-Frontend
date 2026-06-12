@@ -4,11 +4,11 @@ Interface web do marketplace de cartas Pokémon TCG.
 
 ## Repositórios
 
-|          | Link                                                                                               |
-| -------- | -------------------------------------------------------------------------------------------------- |
-| Frontend | _(este repositório)_                                                                               |
-| API      | <!-- [https://github.com/org/pocketmarket-api](https://github.com/ViniciusS4ntos/PocketMarket) --> |
-| Deploy   | <!-- https://pocketmarket.vercel.app -->                                                           |
+|          | Link                                                    |
+| -------- | ------------------------------------------------------- |
+| Frontend | _(este repositório)_                                    |
+| API      | <!-- https://github.com/ViniciusS4ntos/PocketMarket --> |
+| Deploy   | <!-- https://pocketmarket-frontend.vercel.app/ -->      |
 
 ---
 
