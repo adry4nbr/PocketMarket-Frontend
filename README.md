@@ -2,6 +2,16 @@
 
 Interface web do marketplace de cartas Pokémon TCG.
 
+## Repositórios
+
+|          | Link                                                                                               |
+| -------- | -------------------------------------------------------------------------------------------------- |
+| Frontend | _(este repositório)_                                                                               |
+| API      | <!-- [https://github.com/org/pocketmarket-api](https://github.com/ViniciusS4ntos/PocketMarket) --> |
+| Deploy   | <!-- https://pocketmarket.vercel.app -->                                                           |
+
+---
+
 ## Stack
 
 | Ferramenta   | Função                   |
@@ -38,71 +48,74 @@ Acesse: http://localhost:5173
 ```
 src/
 ├── components/
-│   └── shared/          # Componentes reutilizáveis em várias páginas
-│       ├── Navbar.jsx          # Barra de navegação (estados: logado / deslogado)
-│       ├── CardItem.jsx        # Card individual com imagem, nome, preço e botões
-│       ├── CardDetailModal.jsx # Modal de detalhe ao clicar em uma carta
-│       └── SearchBar.jsx       # Barra de busca + filtro de raridade
+│   └── shared/                   # Componentes reutilizáveis em várias páginas
+│       ├── AddCardModal.jsx       # Modal de 3 passos para adicionar carta à coleção
+│       ├── AddCreditModal.jsx     # Modal para adicionar créditos à conta
+│       ├── AuctionTimer.jsx       # Countdown para leilões ativos
+│       ├── CardDetailModal.jsx    # Modal de detalhe ao clicar em uma carta
+│       ├── CardItem.jsx           # Card individual com imagem, nome, preço e botões
+│       ├── ConfirmationModal.jsx  # Modal genérico de confirmação / erro
+│       ├── ListingModal.jsx       # Modal para anunciar carta (venda ou leilão)
+│       ├── Navbar.jsx             # Barra de navegação com saldo de créditos
+│       ├── SearchBar.jsx          # Barra de busca com filtros
+│       └── TradeModal.jsx         # Modal para propor troca comercial
 │
 ├── context/
-│   └── AuthContext.jsx  # Gerencia o usuário logado e o token JWT globalmente
-│                        # Qualquer componente pode saber se o usuário está logado
+│   ├── AuthContext.jsx      # Gerencia usuário logado e token JWT globalmente
+│   ├── LanguageContext.jsx  # Internacionalização (PT / EN) com função t()
+│   └── ThemeContext.jsx     # Alternância dark / light mode
 │
-├── mock/
-│   └── cards.js         # Dados fictícios de cartas, coleção e favoritos
-│                        # Usado enquanto a API ainda não está integrada
-│                        # Quando a API estiver pronta, basta remover as importações deste arquivo
+├── hooks/
+│   └── useDebounce.js       # Hook para debounce de inputs de busca
+│
+├── mock/                    # Dados fictícios remanescentes (em remoção progressiva)
 │
 ├── pages/
-│   ├── HomePage.jsx        # Página principal: hero banner + grid de cartas com busca e filtro
-│   ├── LoginPage.jsx       # Tela de login
-│   ├── RegisterPage.jsx    # Tela de cadastro
-│   ├── CollectionPage.jsx  # Minha coleção: lista cartas adicionadas + valor total
-│   └── FavoritesPage.jsx   # Favoritos: cartas marcadas com coração + badge "In Collection"
+│   ├── Collection/
+│   │   ├── AllUserCards.jsx    # Listagem pública de cartas de todos os usuários
+│   │   ├── CatalogSearch.jsx   # Busca no catálogo oficial para adicionar cartas
+│   │   ├── CollectionPage.jsx  # Container com abas: Coleção / Catálogo / Todas as cartas
+│   │   └── MyCollection.jsx    # Cartas do usuário com opções de anunciar e remover
+│   ├── FavoritesPage.jsx       # Cartas favoritadas pelo usuário
+│   ├── HomePage.jsx            # Marketplace: listagens de venda e leilões
+│   ├── LoginPage.jsx           # Tela de login
+│   ├── MyListingsPage.jsx      # Anúncios ativos do usuário com opção de cancelar
+│   ├── RegisterPage.jsx        # Tela de cadastro
+│   └── TradesPage.jsx          # Trocas enviadas, recebidas e histórico de compras
 │
-├── services/
-│   └── api.js           # Instância do Axios configurada com a URL base da API
-│                        # Injeta o token JWT automaticamente em todas as requisições
-│
-├── App.jsx              # Configuração das rotas do projeto
-├── main.jsx             # Ponto de entrada da aplicação
-└── index.css            # Estilos globais e importação do Tailwind
+└── services/
+    ├── api.js                # Instância do Axios com interceptor JWT
+    ├── catalogService.js     # Chamadas ao catálogo de cartas
+    └── collectionService.js  # Upload de imagem, criação de userCard e coleção
 ```
 
 ---
 
 ## Páginas e Rotas
 
-| Rota          | Página         | Acesso      |
-| ------------- | -------------- | ----------- |
-| `/`           | HomePage       | Público     |
-| `/login`      | LoginPage      | Público     |
-| `/register`   | RegisterPage   | Público     |
-| `/collection` | CollectionPage | Autenticado |
-| `/favorites`  | FavoritesPage  | Autenticado |
+| Rota           | Página         | Acesso      |
+| -------------- | -------------- | ----------- |
+| `/`            | HomePage       | Público     |
+| `/login`       | LoginPage      | Público     |
+| `/register`    | RegisterPage   | Público     |
+| `/collection`  | CollectionPage | Autenticado |
+| `/favorites`   | FavoritesPage  | Autenticado |
+| `/my-listings` | MyListingsPage | Autenticado |
+| `/trades`      | TradesPage     | Autenticado |
 
 ---
 
-## Como integrar com a API
+## Autenticação
 
-O projeto está rodando com **mock data** enquanto o backend está em desenvolvimento.
-
-Quando a API estiver pronta, procure pelos comentários `// TODO` nos arquivos de páginas — eles indicam exatamente onde substituir o mock pela chamada real.
-
-Exemplo em `LoginPage.jsx`:
+O token JWT é salvo no `localStorage` sem o prefixo `"Bearer "`. O interceptor do Axios monta o header automaticamente em todas as requisições autenticadas:
 
 ```js
-// TODO: trocar pelo POST /api/v1/auth/login quando a API estiver pronta
-if (email && password) {
-  login({ name: "Ash Ketchum", email }, "mock-jwt-token");
-}
-```
-
-Vira:
-
-```js
-const response = await api.post("/auth/login", { email, password });
-login(response.data.user, response.data.token);
+// src/services/api.js
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 ```
 
 A URL base da API está configurada em `src/services/api.js`:
@@ -115,18 +128,35 @@ const api = axios.create({
 
 ---
 
-## Padrão de branches
+## Internacionalização
 
-Seguir o mesmo padrão do backend:
+O projeto suporta PT e EN via `LanguageContext`. Para usar em qualquer componente:
+
+```js
+const { t } = useLanguage();
+
+// Texto simples
+t("common.cancel");
+
+// Com interpolação
+t("tradeModal.sentMessage", { offered: "Charizard", requested: "Pikachu" });
+```
+
+Todas as strings ficam centralizadas em `src/context/LanguageContext.jsx`.
+
+---
+
+## Padrão de branches
 
 ```
 feat/nome-da-feature
+fix/nome-do-bug
 ```
 
 Exemplos:
 
 ```
-feat/sales-module
-feat/auction-page
 feat/trade-module
+feat/auction-page
+fix/remove-card-constraint
 ```
