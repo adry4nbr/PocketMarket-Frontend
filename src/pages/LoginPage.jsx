@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function LoginPage() {
   const { loginRequest } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const emailId = useId();
+  const passwordId = useId();
+  const errorId = useId();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +22,7 @@ export default function LoginPage() {
     setError("");
 
     if (!email || !password) {
-      setError("Preencha email e senha.");
+      setError(t("auth.loginMissing"));
       return;
     }
 
@@ -27,7 +32,7 @@ export default function LoginPage() {
       navigate("/");
     } catch (err) {
       const msg = err.response?.data?.message;
-      setError(msg || "Email ou senha inválidos.");
+      setError(msg || t("auth.loginError"));
     } finally {
       setLoading(false);
     }
@@ -43,19 +48,26 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-1">
-          Welcome back
+          {t("auth.loginTitle")}
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
-          Enter your credentials to access your collection.
+          {t("auth.loginSubtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
-              Email Address
+            <label
+              htmlFor={emailId}
+              className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1"
+            >
+              {t("auth.email")}
             </label>
             <input
+              id={emailId}
               type="email"
+              autoComplete="email"
+              required
+              aria-describedby={error ? errorId : undefined}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
@@ -65,15 +77,22 @@ export default function LoginPage() {
 
           <div>
             <div className="flex justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
+              <label
+                htmlFor={passwordId}
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                {t("auth.password")}
               </label>
               <span className="text-sm text-blue-600 dark:text-blue-400 cursor-pointer hover:underline">
-                Forgot password?
+                {t("auth.forgotPassword")}
               </span>
             </div>
             <input
+              id={passwordId}
               type="password"
+              autoComplete="current-password"
+              required
+              aria-describedby={error ? errorId : undefined}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -82,25 +101,28 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>
+            <p id={errorId} role="alert" className="text-red-500 dark:text-red-400 text-sm">
+              {error}
+            </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
+            aria-busy={loading}
             className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Entrando..." : "Log In"}
+            {loading ? t("auth.loginLoading") : t("auth.loginButton")}
           </button>
         </form>
 
         <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-4">
-          Don't have an account?{" "}
+          {t("auth.noAccount")}{" "}
           <Link
             to="/register"
             className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
           >
-            Sign Up
+            {t("auth.signUp")}
           </Link>
         </p>
       </div>

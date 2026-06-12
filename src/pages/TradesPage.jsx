@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Repeat, ShoppingBag } from "lucide-react";
+import { Check, Repeat, ShoppingBag } from "lucide-react";
 import api from "../services/api";
+import ConfirmationModal from "../components/shared/ConfirmationModal";
+import { useLanguage } from "../context/LanguageContext";
 
 const TABS = [
-  { key: "sent", label: "Sent Trades" },
-  { key: "received", label: "Received Trades" },
-  { key: "purchases", label: "My Purchases" },
+  { key: "sent", labelKey: "trades.tabs.sent" },
+  { key: "received", labelKey: "trades.tabs.received" },
+  { key: "purchases", labelKey: "trades.tabs.purchases" },
 ];
 
 function getStatusStyle(status) {
@@ -22,10 +24,21 @@ function getStatusStyle(status) {
 }
 
 export default function TradesPage() {
+  const { locale, t } = useLanguage();
   const [activeTab, setActiveTab] = useState("sent");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [acceptingId, setAcceptingId] = useState(null);
+  const [tradeToAccept, setTradeToAccept] = useState(null);
   const [error, setError] = useState("");
+  const [dialog, setDialog] = useState({
+    open: false,
+    title: "",
+    message: "",
+    confirmLabel: t("common.close"),
+    cancelLabel: null,
+    isDanger: false,
+  });
 
   useEffect(() => {
     async function fetchData() {
@@ -47,13 +60,45 @@ export default function TradesPage() {
         }
       } catch (err) {
         console.error(err);
-        setError("Erro ao carregar os dados.");
+        setError(t("trades.loadError"));
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, t]);
+
+  async function handleAcceptTrade(trade) {
+    try {
+      setAcceptingId(trade.id);
+      setTradeToAccept(null);
+      const { data: acceptedTrade } = await api.patch(
+        `/trade-offers/${trade.id}/accept`,
+      );
+      setData((prev) =>
+        prev.map((item) => (item.id === trade.id ? acceptedTrade : item)),
+      );
+      setDialog({
+        open: true,
+        title: t("trades.acceptedTitle"),
+        message: t("trades.acceptedMessage"),
+        confirmLabel: t("common.close"),
+        cancelLabel: null,
+        isDanger: false,
+      });
+    } catch (err) {
+      setDialog({
+        open: true,
+        title: t("common.error"),
+        message: err.response?.data?.message || t("trades.acceptError"),
+        confirmLabel: t("common.close"),
+        cancelLabel: null,
+        isDanger: true,
+      });
+    } finally {
+      setAcceptingId(null);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-4 sm:px-6 py-6 sm:py-8 transition-colors duration-200">
@@ -61,19 +106,24 @@ export default function TradesPage() {
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Repeat size={24} className="text-blue-600 dark:text-blue-500" />
-          My Trades & Purchases
+          {t("trades.title")}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-          Manage your trade offers and purchase history.
+          {t("trades.subtitle")}
         </p>
       </div>
 
       <hr className="mb-6 border-gray-200 dark:border-gray-800" />
 
       {/* Abas */}
-      <div className="flex gap-2 sm:gap-3 mb-6 overflow-x-auto pb-2 sm:pb-0">
-        {TABS.map(({ key, label }) => (
+      <div
+        className="flex gap-2 sm:gap-3 mb-6 overflow-x-auto pb-2 sm:pb-0"
+        role="tablist"
+        aria-label={t("trades.tabLabel")}
+      >
+        {TABS.map(({ key, labelKey }) => (
           <button
+            type="button"
             key={key}
             onClick={() => setActiveTab(key)}
             className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-colors
@@ -82,8 +132,10 @@ export default function TradesPage() {
                   ? "bg-blue-600 text-white"
                   : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
               }`}
+            role="tab"
+            aria-selected={activeTab === key}
           >
-            {label}
+            {t(labelKey)}
           </button>
         ))}
       </div>
@@ -91,7 +143,7 @@ export default function TradesPage() {
       {/* Estados */}
       {loading && (
         <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-          <p className="text-lg font-medium">Loading...</p>
+          <p className="text-lg font-medium">{t("trades.loading")}</p>
         </div>
       )}
 
@@ -104,12 +156,12 @@ export default function TradesPage() {
       {!loading && !error && data.length === 0 && (
         <div className="text-center py-20">
           <p className="text-lg font-medium text-gray-900 dark:text-gray-200">
-            Nothing here yet.
+            {t("trades.empty")}
           </p>
           <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
             {activeTab === "purchases"
-              ? "Your purchase history will appear here."
-              : "Trade offers will appear here."}
+              ? t("trades.emptyPurchases")
+              : t("trades.emptyTrades")}
           </p>
         </div>
       )}
@@ -132,14 +184,31 @@ export default function TradesPage() {
                     {trade.receiver}
                   </p>
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Pokémon card trade proposal
+                    {t("trades.proposal")}
                   </p>
                 </div>
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium w-fit ${getStatusStyle(trade.status)}`}
-                >
-                  {trade.status}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-xs font-medium w-fit ${getStatusStyle(trade.status)}`}
+                  >
+                    {trade.status}
+                  </span>
+
+                  {activeTab === "received" &&
+                    trade.status?.toUpperCase() === "PENDING" && (
+                      <button
+                        type="button"
+                        disabled={acceptingId === trade.id}
+                        onClick={() => setTradeToAccept(trade)}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                      >
+                        <Check size={14} />
+                        {acceptingId === trade.id
+                          ? t("trades.accepting")
+                          : t("trades.accept")}
+                      </button>
+                    )}
+                </div>
               </div>
             </div>
           ))}
@@ -158,14 +227,16 @@ export default function TradesPage() {
                 <div>
                   <p className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <ShoppingBag size={16} className="text-blue-600" />
-                    {purchase.type === "AUCTION" ? "Leilão" : "Compra Direta"}
+                    {purchase.type === "AUCTION"
+                      ? t("common.auction")
+                      : t("common.directPurchase")}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Vendedor:{" "}
+                    {t("trades.seller")}{" "}
                     <span className="font-medium">{purchase.sellerName}</span>
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                    {new Date(purchase.createdAt).toLocaleDateString("pt-BR")}
+                    {new Date(purchase.createdAt).toLocaleDateString(locale)}
                   </p>
                 </div>
                 <div className="text-right">
@@ -183,6 +254,31 @@ export default function TradesPage() {
           ))}
         </div>
       )}
+
+      {tradeToAccept && (
+        <ConfirmationModal
+          isOpen={Boolean(tradeToAccept)}
+          title={t("trades.acceptTitle")}
+          message={t("trades.acceptMessage")}
+          confirmLabel={t("trades.accept")}
+          cancelLabel={t("common.cancel")}
+          onConfirm={() => handleAcceptTrade(tradeToAccept)}
+          onCancel={() => setTradeToAccept(null)}
+          onClose={() => setTradeToAccept(null)}
+        />
+      )}
+
+      <ConfirmationModal
+        isOpen={dialog.open}
+        title={dialog.title}
+        message={dialog.message}
+        confirmLabel={dialog.confirmLabel}
+        cancelLabel={dialog.cancelLabel}
+        isDanger={dialog.isDanger}
+        onConfirm={() => setDialog((prev) => ({ ...prev, open: false }))}
+        onCancel={() => setDialog((prev) => ({ ...prev, open: false }))}
+        onClose={() => setDialog((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }

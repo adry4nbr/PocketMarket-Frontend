@@ -1,8 +1,30 @@
 import { useState } from "react";
 import { X, Coins } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
 import api from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+
+function jwtDecode(token) {
+  if (typeof token !== "string") {
+    throw new Error("Invalid token specified: must be a string");
+  }
+
+  const parts = token.split(".");
+  if (parts.length < 2) {
+    throw new Error("Invalid token specified: missing part");
+  }
+
+  const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+  const decoded = decodeURIComponent(
+    atob(payload)
+      .split("")
+      .map((c) => {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
+
+  return JSON.parse(decoded);
+}
 
 export default function AddCreditModal({ onClose, onSuccess }) {
   const { token } = useAuth();
